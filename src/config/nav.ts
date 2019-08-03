@@ -13,8 +13,16 @@ const Nav: Array<any> = [
         icon: 'fa fa-wpforms',
         children: [
           {
+            label: '生成应用',
+            path: '/system/app/1',
+          },
+          {
             label: '创建应用',
             path: '/system/app/create',
+          },
+          {
+            label: '创建应用[AMIS]',
+            path: '/system/app/create_amis',
           },
           {
             label: '应用列表',
@@ -33,6 +41,10 @@ const Nav: Array<any> = [
           {
             label: '用户列表',
             path: '/system/user/list',
+          },
+          {
+            label: '新建用户',
+            path: '/system/user/create',
           },
         ],
       },

@@ -2,7 +2,7 @@ import { render as renderSchema } from 'amis';
 import Axios from 'axios';
 import { SchemaNode } from 'amis/lib/types';
 
-const options: object = {
+const defaultOptions: object = {
   fetcher: ({
     url,
     method,
@@ -14,8 +14,10 @@ const options: object = {
     config: object /*其他配置*/;
   }) => {
     // 用来发送 Ajax 请求，建议使用 axios
-    // tslint:disable-next-line: no-console
+
     console.log(url, method, data);
+
+    window.localStorage.setItem(url, JSON.stringify(data));
 
     switch (method) {
       case 'get':
@@ -32,12 +34,12 @@ const options: object = {
   },
   notify: (type: 'error' | 'success' /**/, msg: string /*提示内容*/) => {
     // 用来提示用户
-    // tslint:disable-next-line: no-console
+
     console.log(`[notify]:${type}==>${msg}`);
   },
   alert: (content: string /*提示信息*/) => {
     // 另外一种提示，可以直接用系统框
-    // tslint:disable-next-line: no-console
+
     console.log(`[alert]:${content}`);
   },
 
@@ -64,5 +66,5 @@ const options: object = {
 };
 
 export default ({ schema }: { schema: SchemaNode }) => {
-  return renderSchema(schema, {}, options);
+  return renderSchema(schema, {}, defaultOptions);
 };

@@ -55,16 +55,6 @@ export default function() {
       type: 'text',
     },
     {
-      name: 'name',
-      label: '名称',
-      type: 'text',
-    },
-    {
-      name: 'name',
-      label: '名称',
-      type: 'text',
-    },
-    {
       name: 'group',
       label: '分组',
       type: 'text',
@@ -125,6 +115,22 @@ export default function() {
     type: 'page',
     title: '用户列表',
     // aside: asideTree,
+    toolbar: [
+      {
+        type: 'button',
+        label: '添加用户',
+        level: 'primary',
+        actionType: 'dialog',
+        dialog: {
+          title: '添加用户',
+          closeOnEsc: true,
+          body: {
+            type: 'form',
+            controls: columns,
+          },
+        },
+      },
+    ],
     body: {
       type: 'crud',
       api: '/api/user/list',

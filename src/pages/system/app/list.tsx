@@ -57,6 +57,15 @@ export default function() {
   const schema: SchemaNode = {
     type: 'page',
     title: '应用列表',
+    toolbar: [
+      {
+        type: 'button',
+        label: '添加应用',
+        level: 'primary',
+        actionType: 'link',
+        link: '/system/app/create',
+      },
+    ],
     body: {
       type: 'crud',
       api: '/api/app/list',
