@@ -16,7 +16,12 @@ export default function() {
       type: 'text',
     },
     {
-      name: 'group',
+      name: 'group_id',
+      label: '开发组',
+      type: 'text',
+    },
+    {
+      name: 'service_id',
       label: '开发组',
       type: 'text',
     },
@@ -36,11 +41,6 @@ export default function() {
     title: '条件搜索',
     submitText: '',
     controls: [
-      {
-        type: 'text',
-        name: 'id',
-        label: 'ID',
-      },
       {
         type: 'text',
         name: 'name',
@@ -68,7 +68,7 @@ export default function() {
     ],
     body: {
       type: 'crud',
-      api: '/api/app/list',
+      api: '/api/v1/app',
       headerToolbar: null,
       footerToolbar: ['statistics', 'switch-per-page', 'pagination'],
       filter: filter, // 这里面是一个 form组件

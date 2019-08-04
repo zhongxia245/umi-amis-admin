@@ -21,10 +21,6 @@ const Nav: Array<any> = [
             path: '/system/app/create',
           },
           {
-            label: '创建应用[AMIS]',
-            path: '/system/app/create_amis',
-          },
-          {
             label: '应用列表',
             path: '/system/app/list',
           },

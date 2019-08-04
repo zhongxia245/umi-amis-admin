@@ -1,9 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import router from 'umi/router';
 import {
   Form,
   Card,
   Input,
-  Row,
   Col,
   Button,
   Table,
@@ -12,9 +12,9 @@ import {
   Tag,
   message,
   Popconfirm,
-  Modal,
 } from 'antd';
-import { isEmpty } from 'lodash';
+import { set, cloneDeep } from 'lodash';
+import { getGroup, getService, createOrUpdateApp } from '@/api';
 import DynamicFieldSet from './components/DynamicFieldSet';
 import ModalComponentConfig from './components/ModalComponentConfig';
 
@@ -31,44 +31,53 @@ const formItemLayout = {
   },
 };
 
-let apiId = 0;
+let initData: any = {};
 
-const Create = ({ form }: { form: any }) => {
+const Create = () => {
+  // 页面状态
   const [state, setState] = useState({
     visibleComponentModal: false,
     currentComponent: {},
     currentComponentIndex: -1,
   });
+  // 下拉列表选项
+  const [list, setList] = useState({
+    group: [],
+    service: [],
+  });
+  // 表单数据
   const [data, setData]: any = useState({});
 
-  const { getFieldDecorator, getFieldsValue, getFieldValue, setFieldsValue } = form;
-  let initData = JSON.parse(localStorage.getItem('app') || '{}');
-
-  let initComponents = getFieldValue('components');
-  initComponents = initComponents || initData['components'] || [];
-  getFieldDecorator('components', { initialValue: initComponents });
-
   useEffect(() => {
-    let apis: Array<any> = initData.apis || [];
-    let _keys = apis.map((item, i) => i);
-    initData['_keys_apis'] = _keys;
-    setFieldsValue(initData);
+    initData = JSON.parse(localStorage.getItem('app') || '{}');
+    setData(initData);
+
+    const getData = async () => {
+      let [group, service]: any = await Promise.all([getGroup(), getService()]);
+      setList({ group, service });
+    };
+
+    getData();
   }, []);
 
   const action = {
+    // 设置状态， name 支持  a.b.c / 0.label => 参考 lodash set
     onChange: (name: string, e: any) => {
       let val = e.target ? e.target.value : e;
-      setData({ ...data, [name]: val });
+      let newData = cloneDeep(data);
+      set(newData, name, val);
+      setData(newData);
     },
     toggleComponentModal: () => {
       setState({
         ...state,
         visibleComponentModal: !state.visibleComponentModal,
         currentComponentIndex: -1,
+        currentComponent: {},
       });
     },
     saveComponent: (values: object) => {
-      let components = getFieldValue('components') || [];
+      let components = data['components'] || [];
       // 有当前组件标记，则是编辑，否则是新增
       if (state.currentComponentIndex !== -1) {
         components[state.currentComponentIndex] = {
@@ -77,7 +86,7 @@ const Create = ({ form }: { form: any }) => {
         };
       } else {
         components.push({ ...values, key: components.length });
-        setFieldsValue({ components });
+        setData({ ...data, components });
       }
       action.toggleComponentModal();
     },
@@ -90,42 +99,24 @@ const Create = ({ form }: { form: any }) => {
       });
     },
     deleteComponent: (index: number) => {
-      let components: object[] = getFieldValue('components');
+      let components: object[] = data.components || [];
       components.splice(index, 1);
-      setFieldsValue({ components });
+      setData({ ...data, components });
     },
-    addApiItem: () => {
-      let apis = getFieldValue('apis') || [];
-      apis.push({ id: apiId++ });
-      setFieldsValue({ apis });
-    },
-    // 过滤掉无用的表单数据
-    filterData: (data: object) => {
-      let newData = JSON.parse(JSON.stringify(data));
-      for (const key in newData) {
-        if (newData.hasOwnProperty(key)) {
-          if (key.startsWith('_')) {
-            delete newData[key];
-          }
-        }
-      }
-
-      if (newData.apis) {
-        newData.apis = newData.apis.filter((val: any) => !isEmpty(val));
-      }
-
-      return newData;
-    },
-    onSubmit: (e: any) => {
+    onSubmit: async (e: any) => {
       e.preventDefault();
-      form.validateFields((err: any, values: object) => {
-        if (!err) {
-          console.log('Received values of form: ', values);
-        }
-        let data = action.filterData(values);
-        localStorage.setItem('app', JSON.stringify(data));
-        message.success('创建应用成功~', 100);
-      });
+      let newData = cloneDeep(data);
+      let apiData: IAppConfig = {
+        name: newData.name,
+        group_id: newData.group_id,
+        service_id: newData.service_id,
+        remark: newData.remark,
+        config: JSON.stringify(newData),
+        version: 1,
+      };
+      await createOrUpdateApp(apiData);
+      message.success('创建应用成功~', 100);
+      router.push('/system/app/list');
     },
   };
 
@@ -174,25 +165,29 @@ const Create = ({ form }: { form: any }) => {
   };
 
   const jsx = {
-    // BUG:index.js:1 Warning: [antd: Form.Item] Cannot generate `validateStatus` and `help` automatically, while there are more than one `getFieldDecorator` in it.
-    // 这个代码存在这个警告，解决方案就是 一个 FormItem 只放一个 getFieldDecorator
-    renderItem: (key: any, item: any = {}) => {
+    renderItem: ({ key, name, item = {} }: any) => {
       return (
         <>
           <Col span={6}>
-            {getFieldDecorator(`apis[${key}].label`, { initialValue: item.label })(
-              <Input placeholder="接口标识：get_list" />,
-            )}
+            <Input
+              placeholder="接口标识：get_list"
+              value={item['label']}
+              onChange={action.onChange.bind(null, `${name}[${key}].label`)}
+            />
           </Col>
           <Col span={6}>
-            {getFieldDecorator(`apis[${key}].value`, { initialValue: item.value })(
-              <Input placeholder="接口地址：/api/list" />,
-            )}
+            <Input
+              placeholder="接口地址：/api/list"
+              value={item['value']}
+              onChange={action.onChange.bind(null, `${name}[${key}].value`)}
+            />
           </Col>
           <Col span={6}>
-            {getFieldDecorator(`apis[${key}].remark`, { initialValue: item.remark })(
-              <Input placeholder="接口介绍" />,
-            )}
+            <Input
+              placeholder="接口介绍"
+              value={item['remark']}
+              onChange={action.onChange.bind(null, `${name}[${key}].remark`)}
+            />
           </Col>
         </>
       );
@@ -210,39 +205,40 @@ const Create = ({ form }: { form: any }) => {
           <FormItem label="应用组">
             <Select
               placeholder="请选择应用所属组"
-              value={data.group}
-              onChange={action.onChange.bind(null, 'group')}
+              value={data.group_id}
+              onChange={action.onChange.bind(null, 'group_id')}
             >
-              <Select.Option value={1}>基本应用组</Select.Option>
+              {list.group.map((item: any) => (
+                <Select.Option key={item._id} value={item._id}>
+                  {item.name}
+                </Select.Option>
+              ))}
             </Select>
           </FormItem>
           <FormItem label="服务组">
             <Select
               placeholder="请选择应用接口所在服务"
-              value={data.service}
-              onChange={action.onChange.bind(null, 'service')}
+              value={data.service_id}
+              onChange={action.onChange.bind(null, 'service_id')}
             >
-              <Select.Option value={1}>基本服务组</Select.Option>
+              {list.service.map((item: any) => (
+                <Select.Option key={item._id} value={item._id}>
+                  {item.name}
+                </Select.Option>
+              ))}
             </Select>
           </FormItem>
           <FormItem label="应用介绍">
             <Input
               placeholder="描述下这个应用有什么用~~"
-              value={data.desc}
-              onChange={action.onChange.bind(null, 'desc')}
+              value={data.remark}
+              onChange={action.onChange.bind(null, 'remark')}
             />
           </FormItem>
         </>
       );
     },
   };
-
-  let formData = getFieldsValue();
-
-  let formdataApis: Array<any> = [];
-  if (formData['apis']) {
-    formdataApis = formData['apis'].filter((val: object) => val);
-  }
 
   return (
     <Form
@@ -252,21 +248,13 @@ const Create = ({ form }: { form: any }) => {
     >
       <Card title="基本信息">{jsx.renderBaseInfo()}</Card>
 
-      <Card
-        title="接口信息"
-        style={{ marginTop: 10 }}
-        extra={
-          <Button type="primary" onClick={action.addApiItem}>
-            添加接口
-          </Button>
-        }
-      >
+      <Card title="接口信息" style={{ marginTop: 10 }}>
         <DynamicFieldSet
+          name="apis"
           label="接口列表"
           btnLabel="添加接口"
-          name="apis"
-          form={form}
-          initialValue={initData.apis && initData.apis.filter((val: any) => val)}
+          setData={setData}
+          data={data}
           renderItem={jsx.renderItem}
         />
       </Card>
@@ -285,17 +273,15 @@ const Create = ({ form }: { form: any }) => {
           bordered={true}
           pagination={false}
           columns={config.columns}
-          dataSource={formData['components']}
+          dataSource={data['components']}
         />
-        {state.visibleComponentModal && (
-          <ModalComponentConfig
-            visible={true}
-            apis={formdataApis}
-            initialValue={state.currentComponent}
-            onCancel={action.toggleComponentModal}
-            onOk={action.saveComponent}
-          />
-        )}
+        <ModalComponentConfig
+          visible={state.visibleComponentModal}
+          apis={data['apis']}
+          initData={state.currentComponent}
+          onCancel={action.toggleComponentModal}
+          onOk={action.saveComponent}
+        />
       </Card>
 
       <Button
@@ -310,4 +296,4 @@ const Create = ({ form }: { form: any }) => {
   );
 };
 
-export default Form.create({ name: 'create_app' })(Create);
+export default Create;

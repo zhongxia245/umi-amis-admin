@@ -33,11 +33,12 @@ interface IComponent {
 
 // 应用配置
 interface IAppConfig {
+  _id?: string;
   name: string; // 应用名称
-  group: number; // 应用分组
-  service: number; // 应用服务
-  desc: string; // 应用介绍
-  status: string; // 应用状态  prod ,dev
-  apis: Array<IApi>;
-  components: Array<IComponent>;
+  group_id: string; // 应用分组
+  service_id: string; // 应用服务
+  remark: string; // 应用介绍
+  config: string;
+  status?: number; // 应用状态  prod ,dev
+  version?: number;
 }

@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
 import { Form, Icon, Button, Row, Col } from 'antd';
+import { cloneDeep } from 'lodash';
 
 let id = 0;
 
 interface IDynamicFieldSetProps {
   name: string; // 字段标识
-  form: any; // form 对象，由外部传入
+  data: any; // 表单数据
+  setData: Function; // 渲染表单项
   renderItem: Function; // 渲染表单项
   label?: string; // 字段名称
   btnLabel?: string; // 按钮名称
-  initialValue?: any[]; // 按钮名称
 }
 
 const formItemLayout = {
@@ -30,62 +31,44 @@ const formItemLayoutWithOutLabel = {
   },
 };
 
-export default ({
-  name,
-  form,
-  label,
-  btnLabel,
-  renderItem,
-  initialValue = [],
-}: IDynamicFieldSetProps) => {
-  const { getFieldDecorator, getFieldValue, setFieldsValue } = form;
-  const keysName = `_keys_${name}`;
+export default ({ name, data, label, btnLabel, renderItem, setData }: IDynamicFieldSetProps) => {
+  const fields = data[name] || [];
+
+  // 给动态列表添加唯一标识，当做 key
+  fields.map((item: any = {}) => {
+    if (!item._key) {
+      item._key = id++;
+    }
+    return item;
+  });
 
   let action = {
-    getInitKeys: () => {
-      let nextKeys: number[] = [];
-      for (let i = 0; i < initialValue.length; i++) {
-        nextKeys.push(id++);
-      }
-      return nextKeys;
+    remove: (index: number) => {
+      const nextFields = cloneDeep(fields);
+      nextFields.splice(index, 1);
+      setData({ ...data, [name]: nextFields });
     },
-    remove: (k: any) => {
-      const keys = getFieldValue(keysName);
-      setFieldsValue({
-        [keysName]: keys.filter((key: any) => key !== k),
-      });
-    },
-
     add: () => {
-      const keys = getFieldValue(keysName);
-      const nextKeys = keys.concat(id++);
-      setFieldsValue({
-        [keysName]: nextKeys,
-      });
+      const nextFields = fields.concat({ _key: id++ });
+      setData({ ...data, [name]: nextFields });
     },
   };
 
-  // 初次渲染 keys 为空，因此使用外部传入的初始值 【如果需要初始赋值的话】
-  // 非初次渲染，则keys 有值，直接使用即可
-  const keys = getFieldValue(keysName);
-  let initKeys = keys || action.getInitKeys();
-  getFieldDecorator(keysName, { initialValue: initKeys });
-
-  const formItems = initKeys.map((k: any, index: number) => {
+  const formItems = fields.map((item: any, index: number) => {
     return (
       <Form.Item
-        key={k}
+        key={item._key}
         {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
         label={index === 0 ? label : ''}
         required={false}
       >
         <Row gutter={24}>
-          {renderItem(k, initialValue[k], name)}
+          {renderItem({ key: index, item, name })}
           <Col span={2}>
             <Icon
               className="dynamic-delete-button"
               type="minus-circle-o"
-              onClick={() => action.remove(k)}
+              onClick={() => action.remove(index)}
             />
           </Col>
         </Row>

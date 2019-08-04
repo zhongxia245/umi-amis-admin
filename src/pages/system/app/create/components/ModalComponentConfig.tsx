@@ -1,18 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Switch, Radio, Select, Col, Divider, Modal } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
-import { isEmpty } from 'lodash';
+import { set, cloneDeep, compact } from 'lodash';
 import DynamicFieldSet from './DynamicFieldSet';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 
-interface IModalComponentConfig extends FormComponentProps {
+interface IModalComponentConfig {
   apis: Array<any>; // 应用可用 API 的列表
   visible: boolean;
-  form: any;
-  initialValue?: any;
+  initData?: any;
   onCancel?: any;
   onOk?: any;
 }
@@ -29,56 +27,65 @@ const formItemLayout = {
 };
 
 const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
-  form,
   visible,
+  initData = {},
   apis = [],
-  initialValue = {},
   onCancel = () => {},
   onOk = () => {},
 }) => {
-  const { getFieldDecorator, getFieldsValue, setFieldsValue } = form;
-  let formData = getFieldsValue();
+  const [data, setData]: any = useState({});
 
   useEffect(() => {
-    console.log('initModalComponent', initialValue);
-    if (!isEmpty(initialValue) && visible) {
-      setFieldsValue(initialValue);
+    if (initData) {
+      setData(initData);
     }
-  }, [initialValue]);
+  }, [initData]);
 
   const action = {
+    onChange: (name: string, e: any) => {
+      let val = e.target ? e.target.value : e;
+      let newData = cloneDeep(data);
+      set(newData, name, val);
+      setData(newData);
+    },
+    filterData: (data: any) => {
+      data.filter = compact(data.filter);
+      data.columns = compact(data.columns);
+      data.controls = compact(data.controls);
+      return data;
+    },
     onSubmit: (e: any) => {
       e.preventDefault();
-      form.validateFields((err: any, values: object) => {
-        if (!err) {
-          console.log('Received values of form: ', values);
-        }
-        form.resetFields();
-        onOk(values);
-      });
+      let newData = action.filterData(data);
+      onOk(newData);
     },
   };
 
   const jsx = {
-    // 渲染表单字段，表格字段，表格搜索字段
-    renderFormItem: (key: string, item: any, name: string) => {
-      item = item || {};
+    // 渲染表单字段，表格搜索字段
+    renderFormItem: ({ key, name, item }: any) => {
       return (
         <>
           <Col span={6}>
-            {getFieldDecorator(`${name}[${key}].name`, { initialValue: item.name })(
-              <Input placeholder="name" />,
-            )}
+            <Input
+              placeholder="label"
+              value={item['label']}
+              onChange={action.onChange.bind(null, `${name}[${key}].label`)}
+            />
           </Col>
           <Col span={6}>
-            {getFieldDecorator(`${name}[${key}].label`, { initialValue: item.label })(
-              <Input placeholder="label" />,
-            )}
+            <Input
+              placeholder="name"
+              value={item['name']}
+              onChange={action.onChange.bind(null, `${name}[${key}].name`)}
+            />
           </Col>
           <Col span={6}>
-            {getFieldDecorator(`${name}[${key}].remark`, { initialValue: item.remark })(
-              <Input placeholder="remark" />,
-            )}
+            <Input
+              placeholder="type"
+              value={item['type']}
+              onChange={action.onChange.bind(null, `${name}[${key}].type`)}
+            />
           </Col>
         </>
       );
@@ -90,8 +97,8 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
             label="表格搜索"
             btnLabel="添加表格搜索字段"
             name="filter"
-            form={form}
-            initialValue={[]}
+            data={data}
+            setData={setData}
             renderItem={jsx.renderFormItem}
           />
 
@@ -99,8 +106,8 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
             label="表格字段"
             btnLabel="添加表格字段"
             name="columns"
-            form={form}
-            initialValue={[]}
+            data={data}
+            setData={setData}
             renderItem={jsx.renderFormItem}
           />
         </>
@@ -112,8 +119,8 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
           label="表格字段"
           btnLabel="添加表格字段"
           name="controls"
-          form={form}
-          initialValue={[]}
+          data={data}
+          setData={setData}
           renderItem={jsx.renderFormItem}
         />
       );
@@ -131,60 +138,53 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
     >
       <Form {...formItemLayout}>
         <FormItem label="组件名称">
-          {getFieldDecorator('name')(<Input placeholder="组件的名称" />)}
+          <Input
+            placeholder="组件的名称"
+            value={data.name}
+            onChange={action.onChange.bind(null, 'name')}
+          />
         </FormItem>
         <FormItem label="主体组件">
-          {getFieldDecorator('main', { valuePropName: 'checked' })(<Switch />)}
+          <Switch checked={data.main} onChange={action.onChange.bind(null, 'main')} />
         </FormItem>
         <FormItem label="组件类型">
-          {getFieldDecorator('type')(
-            <RadioGroup>
-              <Radio value="crud">表格</Radio>
-              <Radio value="form">表单</Radio>
-            </RadioGroup>,
-          )}
+          <RadioGroup value={data.type} onChange={action.onChange.bind(null, 'type')}>
+            <Radio value="crud">表格</Radio>
+            <Radio value="form">表单</Radio>
+          </RadioGroup>
         </FormItem>
         <FormItem label="提交接口">
-          {getFieldDecorator('api')(
-            <Select>
-              {apis &&
-                apis.map((item, i) => {
-                  return (
-                    <Option key={i} value={item.value}>
-                      {item.label}
-                    </Option>
-                  );
-                })}
-            </Select>,
-          )}
+          <Select value={data.api} onChange={action.onChange.bind(null, 'api')}>
+            {apis &&
+              apis.map((item, i) => {
+                return (
+                  <Option key={i} value={item.value}>
+                    {item.label}
+                  </Option>
+                );
+              })}
+          </Select>
         </FormItem>
         <FormItem label="初始化接口">
-          {getFieldDecorator('initApi')(
-            <Select>
-              {apis &&
-                apis.map((item, i) => {
-                  return (
-                    <Option key={i} value={item.value}>
-                      {item.label}
-                    </Option>
-                  );
-                })}
-            </Select>,
-          )}
+          <Select value={data.initApi} onChange={action.onChange.bind(null, 'initApi')}>
+            {apis &&
+              apis.map((item, i) => {
+                return (
+                  <Option key={i} value={item.value}>
+                    {item.label}
+                  </Option>
+                );
+              })}
+          </Select>
         </FormItem>
 
         <Divider />
 
-        <div hidden={formData.type !== 'crud'}>{jsx.renderTableConfig()}</div>
-        <div hidden={formData.type !== 'form'}>{jsx.renderFormConfig()}</div>
-
-        {/* {formData.type === 'crud' && jsx.renderTableConfig()} */}
-        {/* {formData.type === 'form' && jsx.renderFormConfig()} */}
+        <div hidden={data.type !== 'crud'}>{jsx.renderTableConfig()}</div>
+        <div hidden={data.type !== 'form'}>{jsx.renderFormConfig()}</div>
       </Form>
     </Modal>
   );
 };
 
-export default Form.create<IModalComponentConfig>({ name: 'component_config' })(
-  ModalComponentConfig,
-);
+export default ModalComponentConfig;
