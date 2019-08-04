@@ -11,6 +11,27 @@
 [AMIS](https://github.com/baidu/amis)
 [font-awesome](http://www.fontawesome.com.cn/faicons/)
 
+## 开发
+
+```bash
+npm i
+npm run dev 
+
+# 访问 http://localhost:8000
+
+# 启动后端接口服务
+git clone https://github.com/zhongxia245/admin-server.git
+
+cd admin-server
+
+npm i 
+
+npm run dev
+
+# umi 会把前端的接口代理到 7001 服务
+# 访问 http://localhost:7001
+```
+
 ## 文档
 
 1. [常见问题](./doc/faq.md)
