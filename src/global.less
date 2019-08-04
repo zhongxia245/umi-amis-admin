@@ -14,8 +14,13 @@ body {
   }
 }
 
-// amis header 是1200， 比 message 大
-// TODO:后续把布局换成 antd 的
-.ant-message {
-  z-index: 2000;
+.ant-menu-item {
+  a {
+
+    &:hover,
+    &:active,
+    &:link {
+      text-decoration: none;
+    }
+  }
 }
