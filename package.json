@@ -9,9 +9,11 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.136",
     "amis": "^1.0.0-rc.9",
     "antd": "^3.20.7",
     "axios": "^0.19.0",
+    "lodash": "^4.17.15",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

@@ -3,14 +3,13 @@ import AmisRenderer from '@/components/AmisRenderer';
 import { SchemaNode } from 'amis/lib/types';
 
 export default function() {
-  let dataStr: any = window.localStorage.getItem('/api/app/create');
+  let dataStr: any = window.localStorage.getItem('app');
   if (!dataStr || dataStr === 'undefined' || dataStr === 'null') {
     dataStr = '{}';
   }
   let appConfig = JSON.parse(dataStr);
 
   const format2AmisConfig = (config: IAppConfig) => {
-
     console.log(config);
 
     let mainComponents = (config.components && config.components.filter(item => item.main)) || [];
@@ -20,7 +19,6 @@ export default function() {
       }
       return item;
     });
-
 
     console.log(mainComponents);
 
