@@ -1,5 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import router from 'umi/router';
+import queryString from 'query-string';
+
 import {
   Form,
   Card,
@@ -14,7 +16,7 @@ import {
   Popconfirm,
 } from 'antd';
 import { set, cloneDeep } from 'lodash';
-import { getGroup, getService, createOrUpdateApp } from '@/api';
+import { getAppById, getGroup, getService, createOrUpdateApp } from '@/api';
 import DynamicFieldSet from './components/DynamicFieldSet';
 import ModalComponentConfig from './components/ModalComponentConfig';
 
@@ -36,6 +38,7 @@ let initData: any = {};
 const Create = () => {
   // 页面状态
   const [state, setState] = useState({
+    _id: '',
     visibleComponentModal: false,
     currentComponent: {},
     currentComponentIndex: -1,
@@ -49,8 +52,19 @@ const Create = () => {
   const [data, setData]: any = useState({});
 
   useEffect(() => {
-    initData = JSON.parse(localStorage.getItem('app') || '{}');
-    setData(initData);
+    const params = queryString.parse(window.location.search);
+    const id: any = params.id;
+    if (id) {
+      const getAppData = async () => {
+        let data: any = await getAppById(id);
+        if (data._id) {
+          let appConfig = JSON.parse(data.config);
+          setData(appConfig);
+          setState({ ...state, _id: data._id });
+        }
+      };
+      getAppData();
+    }
 
     const getData = async () => {
       let [group, service]: any = await Promise.all([getGroup(), getService()]);
@@ -114,9 +128,14 @@ const Create = () => {
         config: JSON.stringify(newData),
         version: 1,
       };
+      // 存在 id 则是编辑
+      if (state._id) {
+        apiData._id = state._id;
+      }
       await createOrUpdateApp(apiData);
-      message.success('创建应用成功~', 100);
-      router.push('/system/app/list');
+      message.success('创建应用成功~', 1, () => {
+        router.push('/system/app/list');
+      });
     },
   };
 

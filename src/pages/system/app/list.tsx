@@ -5,9 +5,9 @@ import { SchemaNode } from 'amis/lib/types';
 export default function() {
   const columns: Array<any> = [
     {
-      name: 'id',
+      name: '_id',
       label: 'ID',
-      width: 20,
+      width: 250,
       type: 'text',
     },
     {
@@ -57,6 +57,7 @@ export default function() {
   const schema: SchemaNode = {
     type: 'page',
     title: '应用列表',
+    subTitle: '应用信息列表，可以对应用进行增删改操作',
     toolbar: [
       {
         type: 'button',
@@ -76,27 +77,22 @@ export default function() {
       itemActions: [
         {
           type: 'button',
+          label: '查看',
+          actionType: 'link',
+          link: '/system/app/$_id',
+        },
+        {
+          type: 'button',
           label: '编辑',
-          actionType: 'drawer',
-          drawer: {
-            closeOnEsc: true,
-            position: 'right',
-            size: 'lg',
-            title: '编辑',
-            body: {
-              type: 'form',
-              name: 'sample-edit-form',
-              api: 'post:/api/app/$id',
-              controls: columns,
-            },
-          },
+          actionType: 'link',
+          link: '/system/app/create?id=${_id}',
         },
         {
           type: 'button',
           label: '删除',
           actionType: 'ajax',
           confirmText: '您确认要删除?',
-          api: 'delete:/api/app/$id',
+          api: 'delete:/api/v1/app/$_id',
         },
       ],
     },

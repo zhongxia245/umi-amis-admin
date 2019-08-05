@@ -31,10 +31,6 @@ const menuData = [
     path: 'system/app',
     children: [
       {
-        name: '生成应用',
-        path: '1',
-      },
-      {
         name: '创建应用',
         path: 'create',
       },
@@ -43,8 +39,12 @@ const menuData = [
         path: 'list',
       },
       {
-        name: '应用分组',
+        name: '分组列表',
         path: 'group',
+      },
+      {
+        name: '服务列表',
+        path: 'service',
       },
     ],
   },

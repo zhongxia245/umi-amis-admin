@@ -1,5 +1,6 @@
 import { render as renderSchema } from 'amis';
 import Axios from 'axios';
+import router from 'umi/router';
 import { SchemaNode } from 'amis/lib/types';
 
 const defaultOptions: object = {
@@ -39,12 +40,12 @@ const defaultOptions: object = {
   },
   alert: (content: string /*提示信息*/) => {
     // 另外一种提示，可以直接用系统框
-
     console.log(`[alert]:${content}`);
   },
 
-  jumpTo: () => {
+  jumpTo: (url: string) => {
     // 可以不传，用来实现页面跳转
+    router.push(url);
   },
 
   updateLocation: () => {

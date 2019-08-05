@@ -12,6 +12,10 @@ axiosInstance.interceptors.response.use(resp => {
   }
 });
 
+export const getAppById = (id: any) => {
+  return axiosInstance.get(`/api/v1/app/${id}`);
+};
+
 export const getService = () => {
   return axiosInstance.get('/api/v1/service');
 };

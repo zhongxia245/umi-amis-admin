@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Switch, Radio, Select, Col, Divider, Modal } from 'antd';
 import { set, cloneDeep, compact } from 'lodash';
 import DynamicFieldSet from './DynamicFieldSet';
+import { CONTROLS_FORM_TYPES } from '@/config';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -81,11 +82,16 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
             />
           </Col>
           <Col span={6}>
-            <Input
-              placeholder="type"
+            <Select
               value={item['type']}
               onChange={action.onChange.bind(null, `${name}[${key}].type`)}
-            />
+            >
+              {CONTROLS_FORM_TYPES.map((item, i) => (
+                <Option key={i} value={item.value}>
+                  {`${item.value}-${item.label}`}
+                </Option>
+              ))}
+            </Select>
           </Col>
         </>
       );
@@ -151,6 +157,8 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
           <RadioGroup value={data.type} onChange={action.onChange.bind(null, 'type')}>
             <Radio value="crud">表格</Radio>
             <Radio value="form">表单</Radio>
+            <Radio value="dialog">弹窗</Radio>
+            <Radio value="drawer">抽屉</Radio>
           </RadioGroup>
         </FormItem>
         <FormItem label="提交接口">
@@ -181,7 +189,7 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
         <Divider />
 
         <div hidden={data.type !== 'crud'}>{jsx.renderTableConfig()}</div>
-        <div hidden={data.type !== 'form'}>{jsx.renderFormConfig()}</div>
+        <div hidden={data.type === 'crud'}>{jsx.renderFormConfig()}</div>
       </Form>
     </Modal>
   );

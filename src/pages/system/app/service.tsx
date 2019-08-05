@@ -10,7 +10,7 @@ export default function() {
       {
         type: 'text',
         name: 'name',
-        label: '分组名称',
+        label: '服务名称',
         placeholder: '模糊匹配名称',
         addOn: {
           label: '搜索',
@@ -23,46 +23,56 @@ export default function() {
   // 表格字段
   const columns: Array<any> = [
     {
+      type: 'text',
       name: '_id',
       label: 'ID',
       width: 250,
-      type: 'text',
     },
     {
+      type: 'text',
       name: 'name',
-      label: '分组名称',
-      type: 'text',
+      label: '服务名称',
     },
     {
-      name: 'remark',
-      label: '描述',
       type: 'text',
+      name: 'protocol',
+      label: '协议',
+    },
+    {
+      type: 'text',
+      name: 'host',
+      label: '域名',
+    },
+    {
+      type: 'text',
+      name: 'token',
+      label: 'token',
       align: 'left',
     },
     {
+      type: 'switch',
       name: 'status',
       label: '状态',
-      type: 'switch',
       value: true,
     },
   ];
 
   const schema: SchemaNode = {
     type: 'page',
-    title: '分组列表',
-    subTitle: '应用的分组信息，每个应用一定会属于某个分组',
+    title: '服务列表',
+    subTitle: '应用的接口服务信息，中间层会根据该服务信息，对接口进行代理',
     toolbar: [
       {
         type: 'button',
-        label: '添加分组',
+        label: '添加服务',
         level: 'primary',
         actionType: 'dialog',
         dialog: {
-          title: '添加分组',
+          title: '添加服务',
           closeOnEsc: true,
           body: {
             type: 'form',
-            api: 'post:/api/v1/group',
+            api: 'post:/api/v1/service',
             controls: columns.slice(1, columns.length),
           },
         },
@@ -70,7 +80,7 @@ export default function() {
     ],
     body: {
       type: 'crud',
-      api: '/api/v1/group',
+      api: '/api/v1/service',
       filter: filter,
       itemActions: [
         {
@@ -82,7 +92,7 @@ export default function() {
             body: {
               type: 'form',
               name: 'sample-edit-form',
-              api: 'post:/api/v1/group/$_id',
+              api: 'post:/api/v1/service/$_id',
               controls: columns,
             },
           },
@@ -92,7 +102,7 @@ export default function() {
           label: '删除',
           actionType: 'ajax',
           confirmText: '您确认要删除?',
-          api: 'delete:/api/v1/group/$_id',
+          api: 'delete:/api/v1/service/$_id',
         },
       ],
       bulkActions: [
