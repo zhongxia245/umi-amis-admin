@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Switch, Radio, Select, Col, Divider, Modal, Alert } from 'antd';
-import { set, cloneDeep, compact, isEmpty, find } from 'lodash';
+import { set, cloneDeep, isEmpty } from 'lodash';
 import { CONTROLS_FORM_TYPES } from '@/config';
 import DynamicFieldSet from './DynamicFieldSet';
 import { TableConfig, FormConfig, IFrameConfig } from './module';
@@ -33,13 +33,13 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
   visible,
   initData = {},
   apis = [],
-  modules = [],
   onCancel = () => {},
   onOk = () => {},
 }) => {
   const [data, setData]: any = useState({
     layout: '',
     type: 'crud',
+    enable: true,
   });
 
   useEffect(() => {
@@ -55,133 +55,13 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
       set(newData, name, val);
       setData(newData);
     },
-    filterData: (data: any) => {
-      data.columns = compact(data.columns) || [];
-      data.controls = compact(data.controls);
-
-      data.columns = data.columns.filter((item: any) => item.type !== 'operation');
-
-      // 增加操作列
-      if (data.columns_operation) {
-        let buttons: any[] = [];
-        data.columns_operation.map((item: any) => {
-          if (item.moduleName) {
-            let moduleConfig = find(modules, obj => {
-              return obj.name === item.moduleName;
-            });
-            item['dialog'] = {
-              title: item.label,
-              body: moduleConfig,
-            };
-          }
-          buttons.push(item);
-        });
-
-        data.columns.push({
-          type: 'operation',
-          label: '操作',
-          buttons: buttons,
-        });
-      }
-      // 过滤条件
-      if (data.filter_controls && data.filter_controls.length > 0) {
-        // 搜索按钮默认放在最后一个搜索字段
-        data.filter_controls[data.filter.length - 1].addOn = {
-          label: '搜索',
-          type: 'submit',
-        };
-        data.filter = {
-          title: '条件过滤',
-          controls: data.filter_controls || [],
-        };
-      }
-
-      return data;
-    },
     onSubmit: (e: any) => {
       e.preventDefault();
-      let newData = action.filterData(data);
-      onOk(newData);
+      onOk(data);
     },
   };
 
   const jsx = {
-    // 渲染表单字段，表格搜索字段
-    renderFormItem: ({ key, name, item }: any) => {
-      return (
-        <>
-          <Col span={5}>
-            <Input
-              placeholder="label"
-              value={item['label']}
-              onChange={action.onChange.bind(null, `${name}[${key}].label`)}
-            />
-          </Col>
-          <Col span={5}>
-            <Input
-              placeholder="name"
-              value={item['name']}
-              onChange={action.onChange.bind(null, `${name}[${key}].name`)}
-            />
-          </Col>
-          <Col span={5}>
-            <Select
-              placeholder="请选择组件类型"
-              value={item['type']}
-              onChange={action.onChange.bind(null, `${name}[${key}].type`)}
-            >
-              {CONTROLS_FORM_TYPES.map((item, i) => (
-                <Option key={i} value={item.value}>
-                  {`${item.value}-${item.label}`}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={5}>
-            <Input
-              placeholder="默认值"
-              value={item['value']}
-              onChange={action.onChange.bind(null, `${name}[${key}].value`)}
-            />
-          </Col>
-        </>
-      );
-    },
-    renderTableConfig: () => {
-      return (
-        <>
-          <DynamicFieldSet
-            label="表格搜索"
-            btnLabel="添加表格搜索字段"
-            name="filter_controls"
-            data={data}
-            setData={setData}
-            renderItem={jsx.renderFormItem}
-          />
-
-          <DynamicFieldSet
-            label="表格字段"
-            btnLabel="添加表格字段"
-            name="columns"
-            data={data}
-            setData={setData}
-            renderItem={jsx.renderFormItem}
-          />
-        </>
-      );
-    },
-    renderFormConfig: () => {
-      return (
-        <DynamicFieldSet
-          label="表格字段"
-          btnLabel="添加表格字段"
-          name="controls"
-          data={data}
-          setData={setData}
-          renderItem={jsx.renderFormItem}
-        />
-      );
-    },
     renderModuleConfigForm: () => {
       switch (data.type) {
         case 'crud':
@@ -227,9 +107,13 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
           />
         </FormItem>
         <FormItem label="是否启用" required={true}>
-          <Switch checked={data.name} onChange={action.onChange.bind(null, 'name')} />
+          <Switch checked={data.enable} onChange={action.onChange.bind(null, 'enable')} />
         </FormItem>
-        <FormItem label="模块布局" required={true}>
+        <FormItem
+          label="模块布局"
+          required={true}
+          help="默认布局,选项卡,grid => 初始会渲染在页面上 ||  弹窗，抽屉 => 点击后才会弹出"
+        >
           <RadioGroup value={data.layout} onChange={action.onChange.bind(null, 'layout')}>
             <Radio value="">默认布局</Radio>
             <Radio value="tabs">选项卡</Radio>

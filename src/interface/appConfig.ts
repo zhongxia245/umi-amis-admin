@@ -31,14 +31,42 @@ interface IComponent {
   controls: Array<IFormItem>; // 【form】表单字段
 }
 
+// 接口配置
+interface IApi {
+  label: string; // 接口名称
+  value: string; // 接口地址
+  method?: string; // 接口类型
+}
+
+// 模块配置
+interface IModule {
+  title: string;
+  name: string;
+  enable: boolean;
+  layout: string;
+  type: string;
+  api?: string;
+  // crud配置专有
+  columns?: any[];
+  columns_operation?: any[];
+  filter_controls?: any[];
+  // form表单专有配置
+  initApi?: string;
+  controls?: any[];
+  // iframe 配置
+  src?: string;
+  height?: string;
+}
+
 // 应用配置
 interface IAppConfig {
   _id?: string;
-  name: string; // 应用名称
+  title: string; // 应用名称
   group_id: string; // 应用分组
   service_id: string; // 应用服务
-  remark: string; // 应用介绍
-  config: string;
+  subTitle: string; // 应用介绍
   status?: number; // 应用状态  prod ,dev
-  version?: number;
+  version?: number; // 配置版本号, 后续版本迭代，可以根据版本号做老版本兼容
+  apis: IApi[]; // 接口列表
+  modules: IModule[]; // 模块列表
 }

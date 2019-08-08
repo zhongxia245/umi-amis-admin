@@ -7,6 +7,7 @@ import AmisRenderer from '@/components/AmisRenderer';
 import { withRouter } from 'umi';
 import { getAppById } from '@/api';
 import { message } from 'antd';
+import { getAMISConfig } from './utils';
 
 export default withRouter(({ match }) => {
   const [config, setConfig]: any = useState({});
@@ -15,9 +16,10 @@ export default withRouter(({ match }) => {
     const getConfig = async () => {
       let data: any = (await getAppById(match.params.id)) || {};
       if (data._id) {
-        let appConfig = JSON.parse(data.config);
-        console.log(appConfig);
-        setConfig(appConfig);
+        let config = JSON.parse(data.config);
+        let amisConfig = getAMISConfig(config);
+        console.log(amisConfig);
+        setConfig(amisConfig);
       } else {
         message.error(`应用 ID(${match.params.id}) 不存在`);
       }

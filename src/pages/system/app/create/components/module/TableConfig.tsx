@@ -38,7 +38,8 @@ export default ({
           <Col span={5}>
             <Select
               placeholder="请选择组件类型"
-              value={item['type'] || CONTROLS_FORM_TYPES[0].value}
+              value={item['type']}
+              defaultValue={CONTROLS_FORM_TYPES[0].value}
               onChange={onChange.bind(null, `${name}[${key}].type`)}
             >
               {CONTROLS_FORM_TYPES.map((item, i) => (
@@ -69,16 +70,6 @@ export default ({
             />
           </Col>
           <Col span={5}>
-            <Select
-              placeholder="展示形式"
-              value={item['actionType']}
-              onChange={onChange.bind(null, `${name}[${key}].actionType`)}
-            >
-              <Option value="dialog">弹窗-dialog</Option>
-              <Option value="drawer">抽屉-drawer</Option>
-            </Select>
-          </Col>
-          <Col span={5}>
             <Input
               placeholder="操作模块name"
               value={item['moduleName']}
@@ -107,7 +98,7 @@ export default ({
       <DynamicFieldSet
         label="搜索字段"
         btnLabel="添加表格搜索字段"
-        name="filter"
+        name="filter_controls"
         data={data}
         setData={setData}
         renderItem={jsx.renderFormItem}

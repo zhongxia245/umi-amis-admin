@@ -18,6 +18,7 @@ import {
 import { getAppById, getGroup, getService, createOrUpdateApp } from '@/api';
 import DynamicFieldSet from './components/DynamicFieldSet';
 import ModalComponentConfig from './components/ModalComponentConfig';
+import { getAMISConfig } from '../utils';
 
 const FormItem = Form.Item;
 
@@ -118,9 +119,7 @@ const Create = () => {
       e.preventDefault();
       let newData = cloneDeep(data);
 
-      newData.body = newData.modules.filter((item: any) => item.layout === '');
-
-      let apiData: IAppConfig = {
+      let apiData: any = {
         name: newData.name,
         group_id: newData.group_id,
         service_id: newData.service_id,
@@ -128,6 +127,7 @@ const Create = () => {
         config: JSON.stringify(newData),
         version: 1,
       };
+
       // 存在 id 则是编辑
       if (state._id) {
         apiData._id = state._id;
