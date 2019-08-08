@@ -22,7 +22,7 @@ export default function() {
     },
     {
       name: 'service_id',
-      label: '开发组',
+      label: '服务组',
       type: 'text',
     },
     {
@@ -33,7 +33,7 @@ export default function() {
     {
       name: 'status',
       label: '状态',
-      type: 'text',
+      type: 'switch',
     },
   ];
 

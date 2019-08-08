@@ -9,21 +9,7 @@ const menuData = [
   {
     name: 'DashBoard',
     icon: 'dashboard',
-    path: 'dashboard',
-    children: [
-      {
-        name: '工作台',
-        path: '/',
-      },
-      {
-        name: '分析页',
-        path: 'analysis',
-      },
-      {
-        name: '监控页',
-        path: 'monitor',
-      },
-    ],
+    path: '/',
   },
   {
     name: '应用管理',

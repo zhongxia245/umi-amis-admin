@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import router from 'umi/router';
 import queryString from 'query-string';
-
+import { set, cloneDeep } from 'lodash';
 import {
   Form,
   Card,
@@ -15,7 +15,6 @@ import {
   message,
   Popconfirm,
 } from 'antd';
-import { set, cloneDeep } from 'lodash';
 import { getAppById, getGroup, getService, createOrUpdateApp } from '@/api';
 import DynamicFieldSet from './components/DynamicFieldSet';
 import ModalComponentConfig from './components/ModalComponentConfig';
@@ -32,8 +31,6 @@ const formItemLayout = {
     sm: { span: 12 },
   },
 };
-
-let initData: any = {};
 
 const Create = () => {
   // 页面状态
@@ -91,16 +88,16 @@ const Create = () => {
       });
     },
     saveComponent: (values: object) => {
-      let components = data['components'] || [];
+      let modules = data['modules'] || [];
       // 有当前组件标记，则是编辑，否则是新增
       if (state.currentComponentIndex !== -1) {
-        components[state.currentComponentIndex] = {
-          ...components[state.currentComponentIndex],
+        modules[state.currentComponentIndex] = {
+          ...modules[state.currentComponentIndex],
           ...values,
         };
       } else {
-        components.push({ ...values, key: components.length });
-        setData({ ...data, components });
+        modules.push({ ...values, key: modules.length });
+        setData({ ...data, modules });
       }
       action.toggleComponentModal();
     },
@@ -113,13 +110,16 @@ const Create = () => {
       });
     },
     deleteComponent: (index: number) => {
-      let components: object[] = data.components || [];
-      components.splice(index, 1);
-      setData({ ...data, components });
+      let modules: object[] = data.modules || [];
+      modules.splice(index, 1);
+      setData({ ...data, modules });
     },
     onSubmit: async (e: any) => {
       e.preventDefault();
       let newData = cloneDeep(data);
+
+      newData.body = newData.modules.filter((item: any) => item.layout === '');
+
       let apiData: IAppConfig = {
         name: newData.name,
         group_id: newData.group_id,
@@ -142,16 +142,21 @@ const Create = () => {
   const config = {
     columns: [
       {
-        title: '组件名称',
+        title: '模块标题',
+        dataIndex: 'title',
+      },
+      {
+        title: '模块标识',
         dataIndex: 'name',
       },
       {
-        title: '组件类型',
-        dataIndex: 'type',
+        title: '模块布局',
+        dataIndex: 'layout',
+        render: (text: string) => <Tag color="purple">{String(text) || '默认布局'}</Tag>,
       },
       {
-        title: '主体应用',
-        dataIndex: 'main',
+        title: '模块类型',
+        dataIndex: 'type',
         render: (text: string) => <Tag color="purple">{String(text)}</Tag>,
       },
       {
@@ -189,14 +194,14 @@ const Create = () => {
         <>
           <Col span={6}>
             <Input
-              placeholder="接口标识：get_list"
+              placeholder="随意接口标识 => get_list"
               value={item['label']}
               onChange={action.onChange.bind(null, `${name}[${key}].label`)}
             />
           </Col>
           <Col span={6}>
             <Input
-              placeholder="接口地址：/api/list"
+              placeholder="[method]:path => get:/api/list"
               value={item['value']}
               onChange={action.onChange.bind(null, `${name}[${key}].value`)}
             />
@@ -214,14 +219,21 @@ const Create = () => {
     renderBaseInfo: () => {
       return (
         <>
-          <FormItem label="应用名称">
+          <FormItem label="应用标题" required={true}>
             <Input
-              placeholder="应用的名称"
-              value={data.name}
-              onChange={action.onChange.bind(null, 'name')}
+              placeholder="请输入应用的标题"
+              value={data.title}
+              onChange={action.onChange.bind(null, 'title')}
             />
           </FormItem>
-          <FormItem label="应用组">
+          <FormItem label="应用介绍" required={true}>
+            <Input
+              placeholder="描述下这个应用有什么用~~"
+              value={data.subTitle}
+              onChange={action.onChange.bind(null, 'subTitle')}
+            />
+          </FormItem>
+          <FormItem label="应用组" required={true}>
             <Select
               placeholder="请选择应用所属组"
               value={data.group_id}
@@ -234,7 +246,7 @@ const Create = () => {
               ))}
             </Select>
           </FormItem>
-          <FormItem label="服务组">
+          <FormItem label="服务组" required={true}>
             <Select
               placeholder="请选择应用接口所在服务"
               value={data.service_id}
@@ -246,13 +258,6 @@ const Create = () => {
                 </Select.Option>
               ))}
             </Select>
-          </FormItem>
-          <FormItem label="应用介绍">
-            <Input
-              placeholder="描述下这个应用有什么用~~"
-              value={data.remark}
-              onChange={action.onChange.bind(null, 'remark')}
-            />
           </FormItem>
         </>
       );
@@ -267,7 +272,7 @@ const Create = () => {
     >
       <Card title="基本信息">{jsx.renderBaseInfo()}</Card>
 
-      <Card title="接口信息" style={{ marginTop: 10 }}>
+      <Card title="接口列表" style={{ marginTop: 10 }}>
         <DynamicFieldSet
           name="apis"
           label="接口列表"
@@ -279,11 +284,11 @@ const Create = () => {
       </Card>
 
       <Card
-        title="组件配置"
+        title="模块配置"
         style={{ marginTop: 10 }}
         extra={
           <Button type="primary" onClick={action.toggleComponentModal}>
-            添加应用
+            添加模块
           </Button>
         }
       >
@@ -292,15 +297,18 @@ const Create = () => {
           bordered={true}
           pagination={false}
           columns={config.columns}
-          dataSource={data['components']}
+          dataSource={data['modules']}
         />
-        <ModalComponentConfig
-          visible={state.visibleComponentModal}
-          apis={data['apis']}
-          initData={state.currentComponent}
-          onCancel={action.toggleComponentModal}
-          onOk={action.saveComponent}
-        />
+        {state.visibleComponentModal && (
+          <ModalComponentConfig
+            visible={state.visibleComponentModal}
+            apis={data['apis']}
+            modules={data['modules']}
+            initData={state.currentComponent}
+            onCancel={action.toggleComponentModal}
+            onOk={action.saveComponent}
+          />
+        )}
       </Card>
 
       <Button

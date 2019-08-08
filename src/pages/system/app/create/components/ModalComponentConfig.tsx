@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Switch, Radio, Select, Col, Divider, Modal } from 'antd';
-import { set, cloneDeep, compact } from 'lodash';
-import DynamicFieldSet from './DynamicFieldSet';
+import { Form, Input, Switch, Radio, Select, Col, Divider, Modal, Alert } from 'antd';
+import { set, cloneDeep, compact, isEmpty, find } from 'lodash';
 import { CONTROLS_FORM_TYPES } from '@/config';
+import DynamicFieldSet from './DynamicFieldSet';
+import { TableConfig, FormConfig, IFrameConfig } from './module';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -11,6 +12,7 @@ const Option = Select.Option;
 interface IModalComponentConfig {
   apis: Array<any>; // 应用可用 API 的列表
   visible: boolean;
+  modules?: any[];
   initData?: any;
   onCancel?: any;
   onOk?: any;
@@ -31,13 +33,17 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
   visible,
   initData = {},
   apis = [],
+  modules = [],
   onCancel = () => {},
   onOk = () => {},
 }) => {
-  const [data, setData]: any = useState({});
+  const [data, setData]: any = useState({
+    layout: '',
+    type: 'crud',
+  });
 
   useEffect(() => {
-    if (initData) {
+    if (!isEmpty(initData)) {
       setData(initData);
     }
   }, [initData]);
@@ -50,9 +56,46 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
       setData(newData);
     },
     filterData: (data: any) => {
-      data.filter = compact(data.filter);
-      data.columns = compact(data.columns);
+      data.columns = compact(data.columns) || [];
       data.controls = compact(data.controls);
+
+      data.columns = data.columns.filter((item: any) => item.type !== 'operation');
+
+      // 增加操作列
+      if (data.columns_operation) {
+        let buttons: any[] = [];
+        data.columns_operation.map((item: any) => {
+          if (item.moduleName) {
+            let moduleConfig = find(modules, obj => {
+              return obj.name === item.moduleName;
+            });
+            item['dialog'] = {
+              title: item.label,
+              body: moduleConfig,
+            };
+          }
+          buttons.push(item);
+        });
+
+        data.columns.push({
+          type: 'operation',
+          label: '操作',
+          buttons: buttons,
+        });
+      }
+      // 过滤条件
+      if (data.filter_controls && data.filter_controls.length > 0) {
+        // 搜索按钮默认放在最后一个搜索字段
+        data.filter_controls[data.filter.length - 1].addOn = {
+          label: '搜索',
+          type: 'submit',
+        };
+        data.filter = {
+          title: '条件过滤',
+          controls: data.filter_controls || [],
+        };
+      }
+
       return data;
     },
     onSubmit: (e: any) => {
@@ -67,22 +110,23 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
     renderFormItem: ({ key, name, item }: any) => {
       return (
         <>
-          <Col span={6}>
+          <Col span={5}>
             <Input
               placeholder="label"
               value={item['label']}
               onChange={action.onChange.bind(null, `${name}[${key}].label`)}
             />
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Input
               placeholder="name"
               value={item['name']}
               onChange={action.onChange.bind(null, `${name}[${key}].name`)}
             />
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Select
+              placeholder="请选择组件类型"
               value={item['type']}
               onChange={action.onChange.bind(null, `${name}[${key}].type`)}
             >
@@ -93,6 +137,13 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
               ))}
             </Select>
           </Col>
+          <Col span={5}>
+            <Input
+              placeholder="默认值"
+              value={item['value']}
+              onChange={action.onChange.bind(null, `${name}[${key}].value`)}
+            />
+          </Col>
         </>
       );
     },
@@ -102,7 +153,7 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
           <DynamicFieldSet
             label="表格搜索"
             btnLabel="添加表格搜索字段"
-            name="filter"
+            name="filter_controls"
             data={data}
             setData={setData}
             renderItem={jsx.renderFormItem}
@@ -131,65 +182,74 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
         />
       );
     },
+    renderModuleConfigForm: () => {
+      switch (data.type) {
+        case 'crud':
+          return (
+            <TableConfig data={data} setData={setData} apis={apis} onChange={action.onChange} />
+          );
+        case 'form':
+          return (
+            <FormConfig data={data} setData={setData} apis={apis} onChange={action.onChange} />
+          );
+        case 'iframe':
+          return (
+            <IFrameConfig data={data} setData={setData} apis={apis} onChange={action.onChange} />
+          );
+        default:
+          return <Alert type="error" message="暂时没有改组件类型的可视化配置页面" />;
+      }
+    },
   };
 
   return (
     <Modal
-      title="组件配置"
-      width={900}
+      title="模块配置"
+      width={1000}
       maskClosable={false}
       visible={visible}
       onCancel={onCancel}
       onOk={action.onSubmit}
     >
       <Form {...formItemLayout}>
-        <FormItem label="组件名称">
+        <FormItem label="模块名称" required={true}>
           <Input
-            placeholder="组件的名称"
+            placeholder="模块的名称"
+            value={data.title}
+            onChange={action.onChange.bind(null, 'title')}
+          />
+        </FormItem>
+        <FormItem label="模块标识" required={true}>
+          <Input
+            placeholder="模块标识，用于其他模块调用"
             value={data.name}
             onChange={action.onChange.bind(null, 'name')}
           />
         </FormItem>
-        <FormItem label="主体组件">
-          <Switch checked={data.main} onChange={action.onChange.bind(null, 'main')} />
+        <FormItem label="是否启用" required={true}>
+          <Switch checked={data.name} onChange={action.onChange.bind(null, 'name')} />
         </FormItem>
-        <FormItem label="组件类型">
-          <RadioGroup value={data.type} onChange={action.onChange.bind(null, 'type')}>
-            <Radio value="crud">表格</Radio>
-            <Radio value="form">表单</Radio>
+        <FormItem label="模块布局" required={true}>
+          <RadioGroup value={data.layout} onChange={action.onChange.bind(null, 'layout')}>
+            <Radio value="">默认布局</Radio>
+            <Radio value="tabs">选项卡</Radio>
+            <Radio value="grid">grid</Radio>
             <Radio value="dialog">弹窗</Radio>
             <Radio value="drawer">抽屉</Radio>
           </RadioGroup>
         </FormItem>
-        <FormItem label="提交接口">
-          <Select value={data.api} onChange={action.onChange.bind(null, 'api')}>
-            {apis &&
-              apis.map((item, i) => {
-                return (
-                  <Option key={i} value={item.value}>
-                    {item.label}
-                  </Option>
-                );
-              })}
-          </Select>
-        </FormItem>
-        <FormItem label="初始化接口">
-          <Select value={data.initApi} onChange={action.onChange.bind(null, 'initApi')}>
-            {apis &&
-              apis.map((item, i) => {
-                return (
-                  <Option key={i} value={item.value}>
-                    {item.label}
-                  </Option>
-                );
-              })}
-          </Select>
+        <FormItem label="模块类型" required={true}>
+          <RadioGroup value={data.type} onChange={action.onChange.bind(null, 'type')}>
+            <Radio value="crud">表格</Radio>
+            <Radio value="form">表单</Radio>
+            <Radio value="wizard">分步表单</Radio>
+            <Radio value="iframe">IFrame</Radio>
+          </RadioGroup>
         </FormItem>
 
         <Divider />
 
-        <div hidden={data.type !== 'crud'}>{jsx.renderTableConfig()}</div>
-        <div hidden={data.type === 'crud'}>{jsx.renderFormConfig()}</div>
+        {jsx.renderModuleConfigForm()}
       </Form>
     </Modal>
   );

@@ -21,7 +21,7 @@ const config: IConfig = {
         title: 'admin',
         dll: true,
         routes: {
-          exclude: [/components\//],
+          exclude: [/components\//, /utils\//],
         },
       },
     ],

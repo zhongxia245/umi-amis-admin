@@ -27,6 +27,7 @@ export default function() {
       name: '_id',
       label: 'ID',
       width: 250,
+      disabled: true,
     },
     {
       type: 'text',

@@ -11,7 +11,6 @@ const CONTROLS_FORM_TYPES = [
   { label: '时间', value: 'time' },
   { label: '日期+时间', value: 'datetime' },
   { label: '时间范围', value: 'date-range' },
-  { label: '多选下拉框', value: 'select', multiple: true },
   { label: '单选框', value: 'radios', options: [], inline: true },
   { label: '多选框', value: 'checkboxes', options: [], inline: true },
   { label: '开关', value: 'switch' },
