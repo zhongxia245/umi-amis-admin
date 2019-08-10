@@ -6,7 +6,6 @@ import {
   Form,
   Card,
   Input,
-  Col,
   Button,
   Table,
   Divider,
@@ -14,13 +13,15 @@ import {
   Tag,
   message,
   Popconfirm,
+  Col,
 } from 'antd';
 import { getAppById, getGroup, getService, createOrUpdateApp } from '@/api';
-import DynamicFieldSet from './components/DynamicFieldSet';
+import DynamicFieldSet from '@/components/DynamicFieldSet';
 import ModalComponentConfig from './components/ModalComponentConfig';
-import { getAMISConfig } from '../utils';
+import ModalApiConfig from './components/ModalApiConfig';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 const formItemLayout = {
   labelCol: {
@@ -37,9 +38,14 @@ const Create = () => {
   // 页面状态
   const [state, setState] = useState({
     _id: '',
-    visibleComponentModal: false,
-    currentComponent: {},
-    currentComponentIndex: -1,
+    // module弹窗
+    visibleModuleModal: false,
+    currentModule: {},
+    currentModuleIndex: -1,
+    // api弹窗
+    visibleApiModal: false,
+    currentApi: {},
+    currentApiIndex: -1,
   });
   // 下拉列表选项
   const [list, setList] = useState({
@@ -83,17 +89,17 @@ const Create = () => {
     toggleComponentModal: () => {
       setState({
         ...state,
-        visibleComponentModal: !state.visibleComponentModal,
-        currentComponentIndex: -1,
-        currentComponent: {},
+        visibleModuleModal: !state.visibleModuleModal,
+        currentModuleIndex: -1,
+        currentModule: {},
       });
     },
     saveComponent: (values: object) => {
       let modules = data['modules'] || [];
       // 有当前组件标记，则是编辑，否则是新增
-      if (state.currentComponentIndex !== -1) {
-        modules[state.currentComponentIndex] = {
-          ...modules[state.currentComponentIndex],
+      if (state.currentModuleIndex !== -1) {
+        modules[state.currentModuleIndex] = {
+          ...modules[state.currentModuleIndex],
           ...values,
         };
       } else {
@@ -105,15 +111,48 @@ const Create = () => {
     editComponent: (record: any, index: any) => {
       setState({
         ...state,
-        currentComponent: record,
-        currentComponentIndex: index,
-        visibleComponentModal: true,
+        currentModule: record,
+        currentModuleIndex: index,
+        visibleModuleModal: true,
       });
     },
     deleteComponent: (index: number) => {
       let modules: object[] = data.modules || [];
       modules.splice(index, 1);
       setData({ ...data, modules });
+    },
+    toggleApiModal: () => {
+      setState({
+        ...state,
+        visibleApiModal: !state.visibleApiModal,
+      });
+    },
+    saveApi: (values: object) => {
+      let apis = data['apis'] || [];
+      // 有当前组件标记，则是编辑，否则是新增
+      if (state.currentApiIndex !== -1) {
+        apis[state.currentApiIndex] = {
+          ...apis[state.currentApiIndex],
+          ...values,
+        };
+      } else {
+        apis.push({ ...values, key: apis.length });
+        setData({ ...data, apis });
+      }
+      action.toggleApiModal();
+    },
+    editAPi: (record: any, index: any) => {
+      setState({
+        ...state,
+        currentApi: record,
+        currentApiIndex: index,
+        visibleApiModal: true,
+      });
+    },
+    deleteApi: (index: number) => {
+      let apis: object[] = data.apis || [];
+      apis.splice(index, 1);
+      setData({ ...data, apis });
     },
     onSubmit: async (e: any) => {
       e.preventDefault();
@@ -140,15 +179,44 @@ const Create = () => {
   };
 
   const config = {
+    apiColumns: [
+      { title: '接口名称', dataIndex: 'name' },
+      {
+        title: '接口类型',
+        dataIndex: 'method',
+        render: (text: string) => <Tag color="purple">{String(text)}</Tag>,
+      },
+      { title: '接口地址', dataIndex: 'path' },
+      {
+        title: '操作',
+        dataIndex: '',
+        key: 'x',
+        render: (text: any, record: any, index: number) => (
+          <Fragment>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                action.editAPi(record, index);
+              }}
+            >
+              编辑
+            </a>
+            <Divider type="vertical" />
+            <Popconfirm
+              title="是否删除该组件？"
+              onConfirm={() => {
+                action.deleteApi(index);
+              }}
+            >
+              <a href="javascript:;">删除</a>
+            </Popconfirm>
+          </Fragment>
+        ),
+      },
+    ],
     columns: [
-      {
-        title: '模块标题',
-        dataIndex: 'title',
-      },
-      {
-        title: '模块标识',
-        dataIndex: 'name',
-      },
+      { title: '模块标题', dataIndex: 'title' },
+      { title: '模块标识', dataIndex: 'name' },
       {
         title: '模块布局',
         dataIndex: 'layout',
@@ -189,28 +257,21 @@ const Create = () => {
   };
 
   const jsx = {
-    renderItem: ({ key, name, item = {} }: any) => {
+    renderFormItem: ({ key, name, item }: any) => {
       return (
         <>
-          <Col span={6}>
+          <Col span={5}>
             <Input
-              placeholder="随意接口标识 => get_list"
+              placeholder="全局按钮名称"
               value={item['label']}
               onChange={action.onChange.bind(null, `${name}[${key}].label`)}
             />
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Input
-              placeholder="[method]:path => get:/api/list"
-              value={item['value']}
-              onChange={action.onChange.bind(null, `${name}[${key}].value`)}
-            />
-          </Col>
-          <Col span={6}>
-            <Input
-              placeholder="接口介绍"
-              value={item['remark']}
-              onChange={action.onChange.bind(null, `${name}[${key}].remark`)}
+              placeholder="模块标识"
+              value={item['moduleName']}
+              onChange={action.onChange.bind(null, `${name}[${key}].moduleName`)}
             />
           </Col>
         </>
@@ -240,9 +301,9 @@ const Create = () => {
               onChange={action.onChange.bind(null, 'group_id')}
             >
               {list.group.map((item: any) => (
-                <Select.Option key={item._id} value={item._id}>
+                <Option key={item._id} value={item._id}>
                   {item.name}
-                </Select.Option>
+                </Option>
               ))}
             </Select>
           </FormItem>
@@ -253,12 +314,20 @@ const Create = () => {
               onChange={action.onChange.bind(null, 'service_id')}
             >
               {list.service.map((item: any) => (
-                <Select.Option key={item._id} value={item._id}>
+                <Option key={item._id} value={item._id}>
                   {item.name}
-                </Select.Option>
+                </Option>
               ))}
             </Select>
           </FormItem>
+          <DynamicFieldSet
+            label="全局按钮"
+            btnLabel="添加按钮 (eg:添加应用)"
+            name="toolbar_controls"
+            data={data}
+            setData={setData}
+            renderItem={jsx.renderFormItem}
+          />
         </>
       );
     },
@@ -270,20 +339,40 @@ const Create = () => {
       style={{ padding: 10, paddingBottom: 50, overflow: 'hidden' }}
       onSubmit={action.onSubmit}
     >
-      <Card title="基本信息">{jsx.renderBaseInfo()}</Card>
-
-      <Card title="接口列表" style={{ marginTop: 10 }}>
-        <DynamicFieldSet
-          name="apis"
-          label="接口列表"
-          btnLabel="添加接口"
-          setData={setData}
-          data={data}
-          renderItem={jsx.renderItem}
-        />
+      <Card size="small" title="基本信息">
+        {jsx.renderBaseInfo()}
       </Card>
 
       <Card
+        size="small"
+        title="接口列表"
+        style={{ marginTop: 10 }}
+        extra={
+          <Button type="primary" onClick={action.toggleApiModal}>
+            添加接口
+          </Button>
+        }
+      >
+        <Table
+          size="small"
+          rowKey="name"
+          bordered={true}
+          pagination={false}
+          columns={config.apiColumns}
+          dataSource={data['apis']}
+        />
+        {state.visibleApiModal && (
+          <ModalApiConfig
+            visible={state.visibleApiModal}
+            initData={state.currentApi}
+            onCancel={action.toggleApiModal}
+            onOk={action.saveApi}
+          />
+        )}
+      </Card>
+
+      <Card
+        size="small"
         title="模块配置"
         style={{ marginTop: 10 }}
         extra={
@@ -294,17 +383,18 @@ const Create = () => {
       >
         <Table
           size="small"
+          rowKey="name"
           bordered={true}
           pagination={false}
           columns={config.columns}
           dataSource={data['modules']}
         />
-        {state.visibleComponentModal && (
+        {state.visibleModuleModal && (
           <ModalComponentConfig
-            visible={state.visibleComponentModal}
+            visible={state.visibleModuleModal}
             apis={data['apis']}
             modules={data['modules']}
-            initData={state.currentComponent}
+            initData={state.currentModule}
             onCancel={action.toggleComponentModal}
             onOk={action.saveComponent}
           />

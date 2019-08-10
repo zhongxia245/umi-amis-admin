@@ -1,45 +1,26 @@
 import React from 'react';
 import { Form, Input, Col, Select } from 'antd';
-import DynamicFieldSet from '../DynamicFieldSet';
+import DynamicFieldSet from '@/components/DynamicFieldSet';
 import { CONTROLS_FORM_TYPES } from '@/config';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default ({
-  data,
-  setData,
-  apis,
-  onChange,
-}: {
-  data: any;
-  setData: any;
-  apis: any[];
-  onChange: Function;
-}) => {
+export default ({ data, setData, apis, onChange }: { data: any; setData: any; apis: any[]; onChange: Function }) => {
   const jsx = {
     renderFormItem: ({ key, name, item }: any) => {
       return (
         <>
           <Col span={5}>
-            <Input
-              placeholder="label"
-              value={item['label']}
-              onChange={onChange.bind(null, `${name}[${key}].label`)}
-            />
+            <Input placeholder="label" value={item['label']} onChange={onChange.bind(null, `${name}[${key}].label`)} />
           </Col>
           <Col span={5}>
-            <Input
-              placeholder="name"
-              value={item['name']}
-              onChange={onChange.bind(null, `${name}[${key}].name`)}
-            />
+            <Input placeholder="name" value={item['name']} onChange={onChange.bind(null, `${name}[${key}].name`)} />
           </Col>
           <Col span={5}>
             <Select
               placeholder="请选择组件类型"
               value={item['type']}
-              defaultValue={CONTROLS_FORM_TYPES[0].value}
               onChange={onChange.bind(null, `${name}[${key}].type`)}
             >
               {CONTROLS_FORM_TYPES.map((item, i) => (
@@ -50,11 +31,7 @@ export default ({
             </Select>
           </Col>
           <Col span={5}>
-            <Input
-              placeholder="默认值"
-              value={item['value']}
-              onChange={onChange.bind(null, `${name}[${key}].value`)}
-            />
+            <Input placeholder="默认值" value={item['value']} onChange={onChange.bind(null, `${name}[${key}].value`)} />
           </Col>
         </>
       );
@@ -84,12 +61,12 @@ export default ({
   return (
     <>
       <FormItem label="数据接口" required={true}>
-        <Select value={data.api} onChange={onChange.bind(null, 'api')}>
+        <Select value={data.apiName} onChange={onChange.bind(null, 'apiName')}>
           {apis &&
             apis.map((item, i) => {
               return (
-                <Option key={i} value={item.value}>
-                  {item.label}
+                <Option key={i} value={item.name}>
+                  {item.name}
                 </Option>
               );
             })}

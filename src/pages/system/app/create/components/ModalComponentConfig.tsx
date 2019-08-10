@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Switch, Radio, Select, Col, Divider, Modal, Alert } from 'antd';
+import { Form, Input, Radio, Modal, Alert, Card } from 'antd';
 import { set, cloneDeep, isEmpty } from 'lodash';
-import { CONTROLS_FORM_TYPES } from '@/config';
-import DynamicFieldSet from './DynamicFieldSet';
 import { TableConfig, FormConfig, IFrameConfig } from './module';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const Option = Select.Option;
 
 interface IModalComponentConfig {
   apis: Array<any>; // 应用可用 API 的列表
@@ -29,17 +26,16 @@ const formItemLayout = {
   },
 };
 
-const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
+export default ({
   visible,
   initData = {},
   apis = [],
   onCancel = () => {},
   onOk = () => {},
-}) => {
+}: IModalComponentConfig) => {
   const [data, setData]: any = useState({
     layout: '',
     type: 'crud',
-    enable: true,
   });
 
   useEffect(() => {
@@ -106,37 +102,27 @@ const ModalComponentConfig: React.SFC<IModalComponentConfig> = ({
             onChange={action.onChange.bind(null, 'name')}
           />
         </FormItem>
-        <FormItem label="是否启用" required={true}>
-          <Switch checked={data.enable} onChange={action.onChange.bind(null, 'enable')} />
-        </FormItem>
         <FormItem
           label="模块布局"
           required={true}
-          help="默认布局,选项卡,grid => 初始会渲染在页面上 ||  弹窗，抽屉 => 点击后才会弹出"
+          help="默认布局 => 初始会渲染在页面上 ||  弹窗 => 点击后才会弹出"
         >
           <RadioGroup value={data.layout} onChange={action.onChange.bind(null, 'layout')}>
             <Radio value="">默认布局</Radio>
-            <Radio value="tabs">选项卡</Radio>
-            <Radio value="grid">grid</Radio>
             <Radio value="dialog">弹窗</Radio>
-            <Radio value="drawer">抽屉</Radio>
           </RadioGroup>
         </FormItem>
         <FormItem label="模块类型" required={true}>
           <RadioGroup value={data.type} onChange={action.onChange.bind(null, 'type')}>
-            <Radio value="crud">表格</Radio>
-            <Radio value="form">表单</Radio>
-            <Radio value="wizard">分步表单</Radio>
+            <Radio value="crud">crud</Radio>
+            <Radio value="form">form</Radio>
             <Radio value="iframe">IFrame</Radio>
           </RadioGroup>
         </FormItem>
-
-        <Divider />
-
-        {jsx.renderModuleConfigForm()}
+        <Card size="small" title={`${data.type}配置`}>
+          {jsx.renderModuleConfigForm()}
+        </Card>
       </Form>
     </Modal>
   );
 };
-
-export default ModalComponentConfig;

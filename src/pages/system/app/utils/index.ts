@@ -1,23 +1,81 @@
 import { compact, find, cloneDeep } from 'lodash';
 
 // 包上一层 page 组件的配置
-const withPageConfig = (data: any, body: any) => {
+const withPageConfig = (data: any, body: any, toolbar?: any) => {
   return {
     type: 'page',
     title: data.title,
     subTitle: data.subTitle,
     body: body,
+    toolbar: toolbar,
   };
 };
 
 /**
  * 获取模块配置
  */
-const getModuleConfig = (modules: any[], item: any) => {
-  let moduleConfig = find(modules, obj => {
-    return obj.name === item.moduleName;
+const getModuleConfig = (data: IAppConfig, moduleName: string) => {
+  let moduleConfig: IModule | undefined = find(data.modules, obj => {
+    return obj.name === moduleName;
   });
-  return moduleConfig;
+
+  if (!moduleConfig) return {};
+
+  return {
+    type: moduleConfig.type,
+    name: moduleConfig.name,
+    title: moduleConfig.title,
+    api: getApiPath(data.apis, moduleConfig.apiName),
+    // table config
+    columns: [],
+
+    // form config
+    initApi: getApiPath(data.apis, moduleConfig.initApiName),
+    controls: moduleConfig.controls,
+
+    // iframe config
+    src: moduleConfig.src,
+    height: moduleConfig.height,
+  };
+};
+
+// 获取接口地址
+const getApiPath = (apis: any[], apiName: any) => {
+  let api =
+    find(apis, obj => {
+      return obj.name === apiName;
+    }) || {};
+
+  // 如果不存在接口地址，则返回空
+  if (api.path) {
+    return `${api.method}:${api.path}`;
+  } else {
+    return '';
+  }
+};
+
+// 获取页面工具栏按钮
+const getToolbarConfig = (data: IAppConfig) => {
+  let toolbar: any[] = [];
+  if (data.toolbar_controls && data.toolbar_controls.length > 0) {
+    data.toolbar_controls.map((item: IToolbar) => {
+      let moduleConfig = getModuleConfig(data, item.moduleName);
+
+      // NOTE：目前默认按钮形式，点击是弹窗的模式
+      toolbar.push({
+        type: 'button',
+        level: 'primary',
+        label: item.label,
+        actionType: 'dialog',
+        dialog: {
+          closeOnEsc: true,
+          title: item.label,
+          body: moduleConfig,
+        },
+      });
+    });
+  }
+  return toolbar;
 };
 
 /**
@@ -37,12 +95,12 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
         type: moduleItem.type,
         name: moduleItem.name,
         title: moduleItem.title,
-        api: moduleItem.api,
+        api: getApiPath(initData.apis, moduleItem.apiName),
         // table config
         columns: [],
 
         // form config
-        initApi: moduleItem.initApi,
+        initApi: getApiPath(initData.apis, moduleItem.initApiName),
         controls: moduleItem.controls,
 
         // iframe config
@@ -63,9 +121,11 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
         let buttons: any[] = [];
         moduleItem.columns_operation.map((item: any) => {
           if (item.moduleName) {
-            let moduleConfig = getModuleConfig(initData.modules, item);
+            let moduleConfig = getModuleConfig(initData, item.moduleName);
             // 表格操作列,先默认使用弹窗的模式
+            item['actionType'] = 'dialog';
             item['dialog'] = {
+              closeOnEsc: true,
               title: item.label,
               body: moduleConfig,
             };
@@ -94,7 +154,6 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
           controls: moduleItem.filter_controls || [],
         };
       }
-
       body.push(amisModule);
     });
 
@@ -105,6 +164,7 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
  * 生成 AMIS 的配置文件
  */
 export const getAMISConfig = (data: IAppConfig) => {
+  let toolbar = getToolbarConfig(data);
   let body = gerneratorAmisConfig(data);
-  return withPageConfig(data, body);
+  return withPageConfig(data, body, toolbar);
 };

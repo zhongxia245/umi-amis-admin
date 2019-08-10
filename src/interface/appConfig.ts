@@ -33,9 +33,10 @@ interface IComponent {
 
 // 接口配置
 interface IApi {
-  label: string; // 接口名称
-  value: string; // 接口地址
-  method?: string; // 接口类型
+  name: string; // 接口名称
+  path: string; // 接口地址
+  method: string; // 接口类型
+  remark?: string; // 接口类型
 }
 
 // 模块配置
@@ -45,17 +46,22 @@ interface IModule {
   enable: boolean;
   layout: string;
   type: string;
-  api?: string;
+  apiName?: string;
   // crud配置专有
   columns?: any[];
   columns_operation?: any[];
   filter_controls?: any[];
   // form表单专有配置
-  initApi?: string;
+  initApiName?: string;
   controls?: any[];
   // iframe 配置
   src?: string;
   height?: string;
+}
+
+interface IToolbar {
+  label: string;
+  moduleName: string;
 }
 
 // 应用配置
@@ -69,4 +75,5 @@ interface IAppConfig {
   version?: number; // 配置版本号, 后续版本迭代，可以根据版本号做老版本兼容
   apis: IApi[]; // 接口列表
   modules: IModule[]; // 模块列表
+  toolbar_controls: IToolbar[];
 }

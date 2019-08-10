@@ -5,14 +5,14 @@ import { getMenuData } from './menu';
 // 所有表单类型，参考这个 https://baidu.github.io/amis/form/full
 const CONTROLS_FORM_TYPES = [
   { label: '文本框', value: 'text' },
-  { label: '多行文本', value: 'textarea' },
-  { label: '下拉框', value: 'select' },
+  { label: '下拉框', value: 'select', hasOptions: true },
+  { label: '单选框', value: 'radios', hasOptions: true, inline: true },
+  { label: '多选框', value: 'checkboxes', hasOptions: true, inline: true },
   { label: '日期', value: 'date' },
   { label: '时间', value: 'time' },
   { label: '日期+时间', value: 'datetime' },
   { label: '时间范围', value: 'date-range' },
-  { label: '单选框', value: 'radios', options: [], inline: true },
-  { label: '多选框', value: 'checkboxes', options: [], inline: true },
+  { label: '多行文本', value: 'textarea' },
   { label: '开关', value: 'switch' },
   { label: '图片', value: 'image' },
   { label: '颜色', value: 'color' },

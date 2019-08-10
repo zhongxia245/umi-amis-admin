@@ -80,7 +80,7 @@ export default ({ name, data, label, btnLabel, renderItem, setData }: IDynamicFi
     <>
       {formItems}
       <Form.Item {...formItemLayoutWithOutLabel}>
-        <Button type="dashed" onClick={action.add} style={{ width: 400 }}>
+        <Button type="dashed" onClick={action.add} style={{ width: 300 }}>
           <Icon type="plus" /> {btnLabel}
         </Button>
       </Form.Item>
