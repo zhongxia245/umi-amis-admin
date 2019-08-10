@@ -36,3 +36,9 @@ npm run dev
 
 1. [常见问题](./doc/faq.md)
 
+## 效果
+
+目前可以通过可视化后台配置出大概这样的功能（增删改查，基本表单组件都支持（富文本，json 编辑器，报图还不支持））
+
+![not](https://user-images.githubusercontent.com/7597581/62820325-57426100-bb95-11e9-8ff1-4b3eb5cfaf57.png)
+
