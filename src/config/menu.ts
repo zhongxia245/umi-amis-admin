@@ -1,3 +1,6 @@
+import { getApp } from '@/api';
+import { cloneDeep, groupBy, find } from 'lodash';
+
 /* eslint no-useless-escape:0 */
 const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g;
 
@@ -69,4 +72,39 @@ function formatter(data: any[], parentPath: string = '/', parentAuthority?: any)
   });
 }
 
-export const getMenuData = () => formatter(menuData);
+// 获取动态菜单
+const getDynamicMenu = async () => {
+  let menus: any = [];
+
+  let data: any = await getApp();
+
+  // 根据应用进行分组
+  let groups: any = groupBy(data, 'group._id');
+  Object.keys(groups).map((key: string) => {
+    if (groups[key] && groups[key].length > 0) {
+      // 获取应用的名称
+      let group = find(data, item => item.group._id === key) || {};
+      let menu: any = {
+        name: group.name,
+        icon: 'hdd',
+        path: `system/${key}`,
+        children: [],
+      };
+      groups[key].map((item: any) => {
+        menu.children.push({
+          name: item.name,
+          path: item._id,
+        });
+      });
+      menus.push(menu);
+    }
+  });
+
+  return menus;
+};
+
+export const getMenuData = async () => {
+  let newMenuData = cloneDeep(menuData);
+  let dynamicMenuData = await getDynamicMenu();
+  return formatter([...newMenuData, ...dynamicMenuData]);
+};

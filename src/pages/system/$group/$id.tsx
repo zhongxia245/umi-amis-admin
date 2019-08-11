@@ -10,21 +10,27 @@ import { message } from 'antd';
 import { getAMISConfig } from './utils';
 
 export default withRouter(({ match }) => {
+  const [loading, setLoading]: any = useState(false);
   const [config, setConfig]: any = useState({});
 
+  // 地址变动，则重新获取应用数据
   useEffect(() => {
+    setLoading(false);
     const getConfig = async () => {
       let data: any = (await getAppById(match.params.id)) || {};
       if (data._id) {
         let config = JSON.parse(data.config);
         let amisConfig = getAMISConfig(config);
         console.log(amisConfig);
+        setLoading(true);
         setConfig(amisConfig);
       } else {
         message.error(`应用 ID(${match.params.id}) 不存在`);
       }
     };
     getConfig();
-  }, []);
-  return <AmisRenderer schema={config} />;
+  }, [match.url]);
+
+  // BUGFIX： loading 是为了解决应用数据没更新的问题
+  return loading ? <AmisRenderer schema={config} /> : <p>loading...</p>;
 });

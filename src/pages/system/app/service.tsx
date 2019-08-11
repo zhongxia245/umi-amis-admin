@@ -46,6 +46,11 @@ export default function() {
     },
     {
       type: 'text',
+      name: 'port',
+      label: '端口',
+    },
+    {
+      type: 'text',
       name: 'token',
       label: 'token',
       align: 'left',

@@ -13,7 +13,14 @@ class BasicLayout extends Component {
     super(props);
     this.state = {
       collapsed: false,
+      menuData: [],
     };
+  }
+
+  async componentDidMount() {
+    let menuData = await getMenuData();
+    console.log(menuData);
+    this.setState({ menuData });
   }
 
   handleMenuCollapse = () => {
@@ -24,13 +31,13 @@ class BasicLayout extends Component {
 
   render() {
     const { children, location } = this.props;
-    const { collapsed } = this.state;
+    const { collapsed, menuData } = this.state;
     return (
       <Layout>
         <SiderMenu
           logo={logo}
           collapsed={collapsed}
-          menuData={getMenuData()}
+          menuData={menuData}
           location={location}
           onCollapse={this.handleMenuCollapse}
         />

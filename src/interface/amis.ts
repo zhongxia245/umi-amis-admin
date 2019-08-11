@@ -1,3 +1,4 @@
+// 弹窗
 interface IAMISDialogOrDrawer {
   title: string;
   closeOnEsc: boolean;
@@ -5,6 +6,7 @@ interface IAMISDialogOrDrawer {
   body?: IAMISBody | IAMISBody[];
 }
 
+// body 配置
 interface IAMISBody {
   type: string;
   title: string;
@@ -16,6 +18,7 @@ interface IAMISBody {
   initApi?: string;
 }
 
+// 表单配置
 interface IAMISForm {
   type: 'form';
   title?: string;
@@ -24,6 +27,7 @@ interface IAMISForm {
   controls?: IAMISFormItem[];
 }
 
+// 表单项配置
 interface IAMISFormItem {
   type: string;
   label?: string;

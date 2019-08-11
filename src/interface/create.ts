@@ -68,8 +68,8 @@ interface IToolbar {
 interface IAppConfig {
   _id?: string;
   title: string; // 应用名称
-  group_id: string; // 应用分组
-  service_id: string; // 应用服务
+  group: string; // 应用分组
+  service: string; // 应用服务
   subTitle: string; // 应用介绍
   status?: number; // 应用状态  prod ,dev
   version?: number; // 配置版本号, 后续版本迭代，可以根据版本号做老版本兼容

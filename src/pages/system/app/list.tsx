@@ -16,12 +16,12 @@ export default function() {
       type: 'text',
     },
     {
-      name: 'group_id',
+      name: 'group.name',
       label: '开发组',
       type: 'text',
     },
     {
-      name: 'service_id',
+      name: 'service.name',
       label: '服务组',
       type: 'text',
     },
@@ -79,7 +79,7 @@ export default function() {
           type: 'button',
           label: '查看',
           actionType: 'link',
-          link: '/system/app/$_id',
+          link: '/system/$group._id/$_id',
         },
         {
           type: 'button',

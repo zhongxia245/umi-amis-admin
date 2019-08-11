@@ -59,6 +59,12 @@ export default ({
     },
     onSubmit: (e: any) => {
       e.preventDefault();
+
+      // 单选和复选框使用一行展示
+      if (['radios', 'checkboxes'].indexOf(data.type) > -1) {
+        data.inline = true;
+      }
+
       onOk(data);
     },
   };

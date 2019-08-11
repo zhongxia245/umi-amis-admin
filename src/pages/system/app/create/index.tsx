@@ -159,10 +159,10 @@ const Create = () => {
       let newData = cloneDeep(data);
 
       let apiData: any = {
-        name: newData.name,
-        group_id: newData.group_id,
-        service_id: newData.service_id,
-        remark: newData.remark,
+        name: newData.title,
+        group: newData.group,
+        service: newData.service,
+        remark: newData.subTitle,
         config: JSON.stringify(newData),
         version: 1,
       };
@@ -297,8 +297,8 @@ const Create = () => {
           <FormItem label="应用组" required={true}>
             <Select
               placeholder="请选择应用所属组"
-              value={data.group_id}
-              onChange={action.onChange.bind(null, 'group_id')}
+              value={data.group}
+              onChange={action.onChange.bind(null, 'group')}
             >
               {list.group.map((item: any) => (
                 <Option key={item._id} value={item._id}>
@@ -310,8 +310,8 @@ const Create = () => {
           <FormItem label="服务组" required={true}>
             <Select
               placeholder="请选择应用接口所在服务"
-              value={data.service_id}
-              onChange={action.onChange.bind(null, 'service_id')}
+              value={data.service}
+              onChange={action.onChange.bind(null, 'service')}
             >
               {list.service.map((item: any) => (
                 <Option key={item._id} value={item._id}>

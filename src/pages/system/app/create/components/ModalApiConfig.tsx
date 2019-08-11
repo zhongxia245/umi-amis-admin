@@ -23,7 +23,12 @@ const formItemLayout = {
   },
 };
 
-export default ({ visible, initData = {}, onCancel = () => {}, onOk = () => {} }: IModalComponentConfig) => {
+export default ({
+  visible,
+  initData = {},
+  onCancel = () => {},
+  onOk = () => {},
+}: IModalComponentConfig) => {
   const [data, setData]: any = useState({
     name: '',
     method: 'get',
@@ -51,7 +56,13 @@ export default ({ visible, initData = {}, onCancel = () => {}, onOk = () => {} }
   };
 
   return (
-    <Modal title="接口配置" maskClosable={false} visible={visible} onCancel={onCancel} onOk={action.onSubmit}>
+    <Modal
+      title="接口配置"
+      maskClosable={false}
+      visible={visible}
+      onCancel={onCancel}
+      onOk={action.onSubmit}
+    >
       <Form {...formItemLayout}>
         <FormItem label="接口标识" required={true}>
           <Input
@@ -61,7 +72,11 @@ export default ({ visible, initData = {}, onCancel = () => {}, onOk = () => {} }
           />
         </FormItem>
         <FormItem label="接口类型" required={true}>
-          <Select value={data.method} onChange={action.onChange.bind(null, 'method')}>
+          <Select
+            showSearch={true}
+            value={data.method}
+            onChange={action.onChange.bind(null, 'method')}
+          >
             <Option value="get">GET</Option>
             <Option value="post">POST</Option>
             <Option value="delete">DELETE</Option>
@@ -76,7 +91,11 @@ export default ({ visible, initData = {}, onCancel = () => {}, onOk = () => {} }
           />
         </FormItem>
         <FormItem label="接口描述">
-          <Input.TextArea placeholder="介绍接口" value={data.remark} onChange={action.onChange.bind(null, 'remark')} />
+          <Input.TextArea
+            placeholder="介绍接口"
+            value={data.remark}
+            onChange={action.onChange.bind(null, 'remark')}
+          />
         </FormItem>
       </Form>
     </Modal>

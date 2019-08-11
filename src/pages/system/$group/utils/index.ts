@@ -68,6 +68,7 @@ const getToolbarConfig = (data: IAppConfig) => {
         label: item.label,
         actionType: 'dialog',
         dialog: {
+          size: 'md',
           closeOnEsc: true,
           title: item.label,
           body: moduleConfig,

@@ -31,7 +31,6 @@ export const getMeunMatcheys = (flatMenuKeys, path) => {
 export default class SiderMenu extends PureComponent {
   constructor(props) {
     super(props);
-    this.menus = props.menuData;
     this.flatMenuKeys = this.getFlatMenuKeys(props.menuData);
     this.state = {
       openKeys: this.getDefaultCollapsedSubMenus(props),
@@ -51,11 +50,12 @@ export default class SiderMenu extends PureComponent {
    */
   getDefaultCollapsedSubMenus(props) {
     const {
+      menuData,
       location: { pathname },
     } = props || this.props;
     return urlToList(pathname)
       .map(item => {
-        return getMeunMatcheys(this.flatMenuKeys, item)[0];
+        return getMeunMatcheys(this.getFlatMenuKeys(menuData), item)[0];
       })
       .filter(item => item);
   }
@@ -161,9 +161,12 @@ export default class SiderMenu extends PureComponent {
   // Get the currently selected menu
   getSelectedMenuKeys = () => {
     const {
+      menuData,
       location: { pathname },
     } = this.props;
-    return urlToList(pathname).map(itemPath => getMeunMatcheys(this.flatMenuKeys, itemPath).pop());
+    return urlToList(pathname).map(itemPath =>
+      getMeunMatcheys(this.getFlatMenuKeys(menuData), itemPath).pop(),
+    );
   };
   // conversion Path
   // 转化路径
@@ -183,7 +186,7 @@ export default class SiderMenu extends PureComponent {
     return ItemDom;
   };
   isMainMenu = key => {
-    return this.menus.some(item => key && (item.key === key || item.path === key));
+    return this.props.menuData.some(item => key && (item.key === key || item.path === key));
   };
   handleOpenChange = openKeys => {
     const lastOpenKey = openKeys[openKeys.length - 1];
@@ -193,7 +196,7 @@ export default class SiderMenu extends PureComponent {
     });
   };
   render() {
-    const { logo, collapsed, onCollapse } = this.props;
+    const { logo, collapsed, onCollapse, menuData } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
@@ -231,7 +234,7 @@ export default class SiderMenu extends PureComponent {
           selectedKeys={selectedKeys}
           style={{ padding: '16px 0', width: '100%' }}
         >
-          {this.getNavMenuItems(this.menus)}
+          {this.getNavMenuItems(menuData)}
         </Menu>
       </Sider>
     );
