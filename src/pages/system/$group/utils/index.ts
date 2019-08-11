@@ -86,6 +86,11 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
   const data = cloneDeep(initData);
   let body: any[] = [];
 
+  // 不存在模块则直接返回
+  if (!data.modules || data.modules.length === 0) {
+    return body;
+  }
+
   // 过滤掉交互弹出的组件， 比如弹窗，侧边栏
   // 这里只展示打开页面展示的组件
   data.modules = data.modules.filter(item => item.layout === '');
