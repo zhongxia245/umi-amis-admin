@@ -83,20 +83,23 @@ const getDynamicMenu = async () => {
   Object.keys(groups).map((key: string) => {
     if (groups[key] && groups[key].length > 0) {
       // 获取应用的名称
-      let group = find(data, item => item.group._id === key) || {};
-      let menu: any = {
-        name: group.name,
-        icon: 'hdd',
-        path: `system/${key}`,
-        children: [],
-      };
-      groups[key].map((item: any) => {
-        menu.children.push({
-          name: item.name,
-          path: item._id,
+      let group = find(data, item => item.group && item.group._id === key);
+
+      if (group) {
+        let menu: any = {
+          name: group.name,
+          icon: 'hdd',
+          path: `system/${key}`,
+          children: [],
+        };
+        groups[key].map((item: any) => {
+          menu.children.push({
+            name: item.name,
+            path: item._id,
+          });
         });
-      });
-      menus.push(menu);
+        menus.push(menu);
+      }
     }
   });
 

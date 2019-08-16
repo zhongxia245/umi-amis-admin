@@ -1,111 +1,181 @@
-import React from 'react';
-import AmisRenderer from '@/components/AmisRenderer';
-import { SchemaNode } from 'amis/lib/types';
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  Button,
+  Table,
+  Divider,
+  Switch,
+  Popconfirm,
+  message,
+  Modal,
+  Form,
+  Input,
+} from 'antd';
+import { getGroup, deleteGroup, addOrUpdateGroup } from '@/api';
 
-export default function() {
-  const filter: object = {
-    title: '条件搜索',
-    submitText: '',
-    controls: [
-      {
-        type: 'text',
-        name: 'name',
-        label: '分组名称',
-        placeholder: '模糊匹配名称',
-        addOn: {
-          label: '搜索',
-          type: 'submit',
-        },
-      },
-    ],
+const FormItem = Form.Item;
+const TextArea = Input.TextArea;
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 6 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
+};
+
+const Group = ({ form }: any) => {
+  const { getFieldDecorator, validateFieldsAndScroll } = form;
+  const [data, setData]: any = useState({
+    dataSource: [],
+    loading: false,
+    visible: false,
+    currentData: {},
+  });
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    action.getData();
+  }, []);
+
+  const action = {
+    getData: async () => {
+      setData({ ...data, loading: true });
+      let result: any = await getGroup();
+      setData({ ...data, dataSource: result, loading: false, visible: false });
+    },
+    onDelete: async (id: string) => {
+      await deleteGroup(id);
+      message.success('删除成功!');
+      action.getData();
+    },
+    onEdit: (record: any) => {
+      setData({ ...data, visible: true, currentData: record });
+    },
+    onCancel: () => {
+      setData({ ...data, visible: false, currentData: {} });
+    },
+    onAdd: () => {
+      setData({ ...data, visible: true });
+    },
+    onSubmit: (e: any) => {
+      e.preventDefault();
+      validateFieldsAndScroll(async (err: any, formData: object) => {
+        if (!err) {
+          console.log(formData);
+          await addOrUpdateGroup(formData);
+          await action.getData();
+          message.success('添加分组成功!');
+        }
+      });
+    },
   };
 
-  // 表格字段
-  const columns: Array<any> = [
+  const columns = [
     {
-      name: '_id',
-      label: 'ID',
-      width: 250,
-      type: 'text',
+      title: 'ID',
+      dataIndex: '_id',
+      width: 120,
     },
     {
-      name: 'name',
-      label: '分组名称',
-      type: 'text',
+      title: '分组名称',
+      dataIndex: 'name',
     },
     {
-      name: 'remark',
-      label: '描述',
-      type: 'text',
-      align: 'left',
+      title: '描述',
+      dataIndex: 'remark',
     },
     {
-      name: 'status',
-      label: '状态',
-      type: 'switch',
-      value: true,
+      title: '分组状态',
+      dataIndex: 'status',
+      render: (val: any) => <Switch checked={!!val} />,
+    },
+    {
+      title: '操作',
+      render: (text: string, record: any) => (
+        <span>
+          <a
+            href="javascript:;"
+            onClick={() => {
+              action.onEdit(record);
+            }}
+          >
+            编辑
+          </a>
+          <Divider type="vertical" />
+          <Popconfirm
+            title={`是否删除该分组?`}
+            okText="是"
+            cancelText="否"
+            onConfirm={() => {
+              action.onDelete(record._id);
+            }}
+          >
+            <a href="javascript:;">删除</a>
+          </Popconfirm>
+        </span>
+      ),
     },
   ];
 
-  const schema: SchemaNode = {
-    type: 'page',
-    title: '分组列表',
-    subTitle: '应用的分组信息，每个应用一定会属于某个分组',
-    toolbar: [
-      {
-        type: 'button',
-        label: '添加分组',
-        level: 'primary',
-        actionType: 'dialog',
-        dialog: {
-          title: '添加分组',
-          closeOnEsc: true,
-          body: {
-            type: 'form',
-            api: 'post:/api/v1/group',
-            controls: columns.slice(1, columns.length),
-          },
-        },
-      },
-    ],
-    body: {
-      type: 'crud',
-      api: '/api/v1/group',
-      filter: filter,
-      itemActions: [
-        {
-          type: 'button',
-          label: '编辑',
-          actionType: 'dialog',
-          dialog: {
-            title: '编辑',
-            body: {
-              type: 'form',
-              name: 'sample-edit-form',
-              api: 'post:/api/v1/group/$_id',
-              controls: columns,
-            },
-          },
-        },
-        {
-          type: 'button',
-          label: '删除',
-          actionType: 'ajax',
-          confirmText: '您确认要删除?',
-          api: 'delete:/api/v1/group/$_id',
-        },
-      ],
-      bulkActions: [
-        {
-          label: '批量删除',
-          actionType: 'ajax',
-          api: 'delete:https://houtai.baidu.com/api/sample/${ids|raw}',
-          confirmText: '确定要批量删除?',
-          type: 'button',
-        },
-      ],
-      columns: columns,
-    },
-  };
-  return <AmisRenderer schema={schema} />;
-}
+  return (
+    <Card
+      title="应用分组"
+      extra={
+        <Button type="primary" onClick={action.onAdd}>
+          添加分组
+        </Button>
+      }
+    >
+      <Table
+        rowKey="_id"
+        size="middle"
+        loading={data.loading}
+        bordered={true}
+        pagination={false}
+        columns={columns}
+        dataSource={data.dataSource}
+      />
+      <Modal
+        title="编辑分组"
+        maskClosable={false}
+        visible={data.visible}
+        onCancel={action.onCancel}
+        onOk={action.onSubmit}
+      >
+        <Form {...formItemLayout}>
+          {data.currentData._id && (
+            <FormItem label="ID">
+              {getFieldDecorator('_id', {
+                initialValue: data.currentData._id,
+              })(<Input disabled={true} />)}
+            </FormItem>
+          )}
+          <FormItem label="分组名称">
+            {getFieldDecorator('name', {
+              initialValue: data.currentData.name,
+              rules: [{ required: true, message: '分组名称不能为空' }],
+            })(<Input placeholder="请输入分组名称" />)}
+          </FormItem>
+          <FormItem label="分组描述">
+            {getFieldDecorator('remark', { initialValue: data.currentData.remark })(
+              <TextArea rows={3} placeholder="请输入分组描述" />,
+            )}
+          </FormItem>
+          <FormItem label="分组状态">
+            {getFieldDecorator('status', {
+              initialValue:
+                data.currentData.status === undefined ? true : !!data.currentData.status,
+              valuePropName: 'checked',
+            })(<Switch />)}
+          </FormItem>
+        </Form>
+      </Modal>
+    </Card>
+  );
+};
+
+export default Form.create({ name: 'group' })(Group);

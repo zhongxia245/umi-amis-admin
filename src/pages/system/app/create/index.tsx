@@ -321,8 +321,8 @@ const Create = () => {
             </Select>
           </FormItem>
           <DynamicFieldSet
-            label="全局按钮"
-            btnLabel="添加按钮 (eg:添加应用)"
+            label="工具栏按钮"
+            btnLabel="添加工具栏按钮 (eg:添加应用)"
             name="toolbar_controls"
             data={data}
             setData={setData}

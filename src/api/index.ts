@@ -28,6 +28,18 @@ export const getGroup = () => {
   return axiosInstance.get('/api/v1/group');
 };
 
+export const deleteGroup = (id: string) => {
+  return axiosInstance.delete(`/api/v1/group/${id}`);
+};
+
+export const addOrUpdateGroup = (data: any) => {
+  if (data._id) {
+    return axiosInstance.post(`/api/v1/group/${data._id}`, data);
+  } else {
+    return axiosInstance.post('/api/v1/group', data);
+  }
+};
+
 export const createOrUpdateApp = (data: IAppConfig) => {
   if (data._id) {
     const id = data._id;
