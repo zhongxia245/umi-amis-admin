@@ -17,7 +17,8 @@
     "lodash-decorators": "^6.0.1",
     "query-string": "^6.8.2",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
@@ -25,6 +26,7 @@
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
     "@types/react-test-renderer": "^16.0.3",
+    "@types/uuid": "^3.4.5",
     "babel-eslint": "^9.0.0",
     "eslint": "^5.4.0",
     "eslint-config-umi": "^1.4.0",
@@ -40,6 +42,7 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "umi": "^2.7.0",
+    "umi-plugin-dll": "^1.5.3",
     "umi-plugin-react": "^1.8.0",
     "umi-types": "^0.2.0"
   },

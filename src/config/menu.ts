@@ -75,8 +75,13 @@ function formatter(data: any[], parentPath: string = '/', parentAuthority?: any)
 // 获取动态菜单
 const getDynamicMenu = async () => {
   let menus: any = [];
+  let data: any = [];
 
-  let data: any = await getApp();
+  try {
+    data = await getApp();
+  } catch (error) {
+    console.warn(`[WARN]:获取应用报错`);
+  }
 
   // 根据应用进行分组
   let groups: any = groupBy(data, 'group._id');

@@ -6,16 +6,34 @@ import { CONTROLS_FORM_TYPES } from '@/config';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default ({ data, setData, apis, onChange }: { data: any; setData: any; apis: any[]; onChange: Function }) => {
+export default ({
+  data,
+  setData,
+  apis,
+  onChange,
+}: {
+  data: any;
+  setData: any;
+  apis: any[];
+  onChange: Function;
+}) => {
   const jsx = {
     renderFormItem: ({ key, name, item }: any) => {
       return (
         <>
           <Col span={5}>
-            <Input placeholder="label" value={item['label']} onChange={onChange.bind(null, `${name}[${key}].label`)} />
+            <Input
+              placeholder="label"
+              value={item['label']}
+              onChange={onChange.bind(null, `${name}[${key}].label`)}
+            />
           </Col>
           <Col span={5}>
-            <Input placeholder="name" value={item['name']} onChange={onChange.bind(null, `${name}[${key}].name`)} />
+            <Input
+              placeholder="name"
+              value={item['name']}
+              onChange={onChange.bind(null, `${name}[${key}].name`)}
+            />
           </Col>
           <Col span={5}>
             <Select
@@ -31,7 +49,11 @@ export default ({ data, setData, apis, onChange }: { data: any; setData: any; ap
             </Select>
           </Col>
           <Col span={5}>
-            <Input placeholder="默认值" value={item['value']} onChange={onChange.bind(null, `${name}[${key}].value`)} />
+            <Input
+              placeholder="默认值"
+              value={item['value']}
+              onChange={onChange.bind(null, `${name}[${key}].value`)}
+            />
           </Col>
         </>
       );
@@ -71,6 +93,14 @@ export default ({ data, setData, apis, onChange }: { data: any; setData: any; ap
               );
             })}
         </Select>
+      </FormItem>
+      <FormItem label="表格数据字段">
+        <Input
+          type="text"
+          placeholder="表格使用的接口返回字段, 默认 data"
+          value={data.dataField}
+          onChange={onChange.bind(null, 'dataField')}
+        />
       </FormItem>
       <DynamicFieldSet
         label="搜索字段"

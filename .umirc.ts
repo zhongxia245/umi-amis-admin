@@ -25,6 +25,13 @@ const config: IConfig = {
         },
       },
     ],
+    [
+      'umi-plugin-dll',
+      {
+        exclude: ['@babel/runtime'],
+        include: ['amis'],
+      },
+    ],
   ],
 };
 

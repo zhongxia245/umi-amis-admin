@@ -69,7 +69,7 @@ export default function() {
     ],
     body: {
       type: 'crud',
-      api: '/api/v1/app',
+      api: 'https://api.izhongxia.com/api/v1/app',
       headerToolbar: null,
       footerToolbar: ['statistics', 'switch-per-page', 'pagination'],
       filter: filter, // 这里面是一个 form组件
@@ -92,7 +92,7 @@ export default function() {
           label: '删除',
           actionType: 'ajax',
           confirmText: '您确认要删除?',
-          api: 'delete:/api/v1/app/$_id',
+          api: 'delete:https://api.izhongxia.com/api/v1/app/$_id',
         },
       ],
     },

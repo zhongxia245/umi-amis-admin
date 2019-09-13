@@ -41,14 +41,22 @@ const getModuleConfig = (data: IAppConfig, moduleName: string) => {
 
 // 获取接口地址
 const getApiPath = (apis: any[], apiName: any) => {
-  let api =
-    find(apis, obj => {
-      return obj.name === apiName;
-    }) || {};
+  let api = find(apis, obj => obj.name === apiName) || {};
 
   // 如果不存在接口地址，则返回空
   if (api.path) {
-    return `${api.method}:${api.path}`;
+    return {
+      url: api.path,
+      method: api.method,
+      // 接口适配,处理不符合约定接口数据
+      adaptor: (result: any) => {
+        return {
+          data: result.data,
+          status: result.status === 0 || result.success ? 0 : 1,
+          msg: result.msg || result.message,
+        };
+      },
+    };
   } else {
     return '';
   }
@@ -160,6 +168,14 @@ const gerneratorAmisConfig = (initData: IAppConfig) => {
           controls: moduleItem.filter_controls || [],
         };
       }
+
+      // 移除没有赋值的属性
+      for (const key in amisModule) {
+        if (amisModule.hasOwnProperty(key) && amisModule[key] === undefined) {
+          delete amisModule[key];
+        }
+      }
+
       body.push(amisModule);
     });
 

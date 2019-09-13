@@ -16,9 +16,7 @@ const defaultOptions: object = {
   }) => {
     // 用来发送 Ajax 请求，建议使用 axios
 
-    console.log(url, method, data);
-
-    window.localStorage.setItem(url, JSON.stringify(data));
+    console.log(`[API]:${method}:${url}`, data);
 
     switch (method) {
       case 'get':
@@ -35,7 +33,6 @@ const defaultOptions: object = {
   },
   notify: (type: 'error' | 'success' /**/, msg: string /*提示内容*/) => {
     // 用来提示用户
-
     console.log(`[notify]:${type}==>${msg}`);
   },
   alert: (content: string /*提示信息*/) => {

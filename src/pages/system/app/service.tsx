@@ -78,7 +78,7 @@ export default function() {
           closeOnEsc: true,
           body: {
             type: 'form',
-            api: 'post:/api/v1/service',
+            api: 'post:https://api.izhongxia.com/api/v1/service',
             controls: columns.slice(1, columns.length),
           },
         },
@@ -86,7 +86,7 @@ export default function() {
     ],
     body: {
       type: 'crud',
-      api: '/api/v1/service',
+      api: 'https://api.izhongxia.com/api/v1/service',
       filter: filter,
       itemActions: [
         {
@@ -98,7 +98,7 @@ export default function() {
             body: {
               type: 'form',
               name: 'sample-edit-form',
-              api: 'post:/api/v1/service/$_id',
+              api: 'post:https://api.izhongxia.com/api/v1/service/$_id',
               controls: columns,
             },
           },
@@ -108,7 +108,7 @@ export default function() {
           label: '删除',
           actionType: 'ajax',
           confirmText: '您确认要删除?',
-          api: 'delete:/api/v1/service/$_id',
+          api: 'delete:https://api.izhongxia.com/api/v1/service/$_id',
         },
       ],
       bulkActions: [

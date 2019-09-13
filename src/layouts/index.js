@@ -19,7 +19,6 @@ class BasicLayout extends Component {
 
   async componentDidMount() {
     let menuData = await getMenuData();
-    console.log(menuData);
     this.setState({ menuData });
   }
 
