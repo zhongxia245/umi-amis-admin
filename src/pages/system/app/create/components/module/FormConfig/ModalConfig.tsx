@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Col } from 'antd';
+import { Modal, Form, Input, Select, Col, Switch } from 'antd';
 import { set, cloneDeep, isEmpty } from 'lodash';
-import { CONTROLS_FORM_TYPES } from '@/config';
+import { CONTROLS_FORM_TYPES, VALUE_TYPES } from '@/config';
 import DynamicFieldSet from '@/components/DynamicFieldSet';
 
 const FormItem = Form.Item;
@@ -35,6 +35,7 @@ export default ({
 }: IModalFormItemConfig) => {
   const [data, setData]: any = useState({
     type: 'text',
+    valueType: 'string',
   });
 
   useEffect(() => {
@@ -116,14 +117,28 @@ export default ({
             onChange={action.onChange.bind(null, 'name')}
           />
         </FormItem>
-        <FormItem label="字段类型" required={true}>
+        <FormItem label="组件类型" required={true}>
           <Select
             placeholder="请选择组件类型"
             showSearch={true}
             value={data.type}
-            onChange={action.onChange.bind(null, 'type')}
+            onSelect={action.onChange.bind(null, 'type')}
           >
             {CONTROLS_FORM_TYPES.map((item, i) => (
+              <Option key={i} value={item.value}>
+                {`${item.value}-${item.label}`}
+              </Option>
+            ))}
+          </Select>
+        </FormItem>
+        <FormItem label="字段值类型">
+          <Select
+            placeholder="请选择字段的值类型"
+            showSearch={true}
+            value={data.valueType || ''}
+            onSelect={action.onChange.bind(null, 'valueType')}
+          >
+            {VALUE_TYPES.map((item, i) => (
               <Option key={i} value={item.value}>
                 {`${item.value}-${item.label}`}
               </Option>
@@ -152,6 +167,9 @@ export default ({
         )}
         <FormItem label="字段默认值">
           <Input value={data.value} onChange={action.onChange.bind(null, 'value')} />
+        </FormItem>
+        <FormItem label="是否禁用">
+          <Switch checked={data.disabled} onChange={action.onChange.bind(null, 'disabled')} />
         </FormItem>
       </Form>
     </Modal>

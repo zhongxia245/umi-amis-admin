@@ -38,14 +38,17 @@ export default ({
           <Col span={5}>
             <Select
               placeholder="请选择组件类型"
+              showSearch={true}
               value={item['type']}
-              onChange={onChange.bind(null, `${name}[${key}].type`)}
+              onSelect={onChange.bind(null, `${name}[${key}].type`)}
             >
-              {CONTROLS_FORM_TYPES.map((item, i) => (
-                <Option key={i} value={item.value}>
-                  {`${item.value}-${item.label}`}
-                </Option>
-              ))}
+              {CONTROLS_FORM_TYPES.map((item, i) => {
+                return (
+                  <Option key={i} value={item.value}>
+                    {`${item.value}-${item.label}`}
+                  </Option>
+                );
+              })}
             </Select>
           </Col>
           <Col span={5}>
@@ -105,9 +108,10 @@ export default ({
       <DynamicFieldSet
         label="搜索字段"
         btnLabel="添加表格搜索字段"
-        name="filter_controls"
+        name="filterControls"
         data={data}
         setData={setData}
+        defaultValue={{ type: 'text' }}
         renderItem={jsx.renderFormItem}
       />
 
@@ -117,13 +121,14 @@ export default ({
         name="columns"
         data={data}
         setData={setData}
+        defaultValue={{ type: 'text' }}
         renderItem={jsx.renderFormItem}
       />
 
       <DynamicFieldSet
         label="操作字段"
         btnLabel="添加操作字段"
-        name="columns_operation"
+        name="columnsOperation"
         data={data}
         setData={setData}
         renderItem={jsx.renderOperation}

@@ -11,6 +11,7 @@ interface IDynamicFieldSetProps {
   renderItem: Function; // 渲染表单项
   label?: string; // 字段名称
   btnLabel?: string; // 按钮名称
+  defaultValue?: object; // 动态表单的默认值
 }
 
 const formItemLayout = {
@@ -31,7 +32,15 @@ const formItemLayoutWithOutLabel = {
   },
 };
 
-export default ({ name, data, label, btnLabel, renderItem, setData }: IDynamicFieldSetProps) => {
+export default ({
+  name,
+  data,
+  label,
+  btnLabel,
+  renderItem,
+  setData,
+  defaultValue,
+}: IDynamicFieldSetProps) => {
   const fields = data[name] || [];
 
   // 给动态列表添加唯一标识，当做 key
@@ -49,7 +58,7 @@ export default ({ name, data, label, btnLabel, renderItem, setData }: IDynamicFi
       setData({ ...data, [name]: nextFields });
     },
     add: () => {
-      const nextFields = fields.concat({ _key: id++ });
+      const nextFields = fields.concat({ _key: id++, ...defaultValue });
       setData({ ...data, [name]: nextFields });
     },
   };

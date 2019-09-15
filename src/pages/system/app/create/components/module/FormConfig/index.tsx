@@ -57,6 +57,7 @@ export default ({
       </FormItem>
       <DynamicTable
         title="表单字段列表"
+        btnLabel="添加字段"
         name="controls"
         data={data}
         setData={setData}

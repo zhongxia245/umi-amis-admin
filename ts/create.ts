@@ -47,10 +47,11 @@ interface IModule {
   layout: string;
   type: string;
   apiName?: string;
+  dataField?: string;
   // crud配置专有
   columns?: any[];
-  columns_operation?: any[];
-  filter_controls?: any[];
+  columnsOperation?: any[];
+  filterControls?: any[];
   // form表单专有配置
   initApiName?: string;
   controls?: any[];
@@ -75,5 +76,5 @@ interface IAppConfig {
   version?: number; // 配置版本号, 后续版本迭代，可以根据版本号做老版本兼容
   apis: IApi[]; // 接口列表
   modules: IModule[]; // 模块列表
-  toolbar_controls: IToolbar[];
+  toolbarControls: IToolbar[];
 }

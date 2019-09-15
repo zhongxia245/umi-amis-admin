@@ -88,29 +88,6 @@ export default function() {
       type: 'crud',
       api: 'https://api.izhongxia.com/api/v1/service',
       filter: filter,
-      itemActions: [
-        {
-          type: 'button',
-          label: '编辑',
-          actionType: 'dialog',
-          dialog: {
-            title: '编辑',
-            body: {
-              type: 'form',
-              name: 'sample-edit-form',
-              api: 'post:https://api.izhongxia.com/api/v1/service/$_id',
-              controls: columns,
-            },
-          },
-        },
-        {
-          type: 'button',
-          label: '删除',
-          actionType: 'ajax',
-          confirmText: '您确认要删除?',
-          api: 'delete:https://api.izhongxia.com/api/v1/service/$_id',
-        },
-      ],
       bulkActions: [
         {
           label: '批量删除',
@@ -120,7 +97,39 @@ export default function() {
           type: 'button',
         },
       ],
-      columns: columns,
+      columns: [
+        ...columns,
+        {
+          type: 'operation',
+          label: '操作',
+          width: 100,
+          buttons: [
+            {
+              type: 'button',
+              level: 'primary',
+              label: '编辑',
+              actionType: 'dialog',
+              dialog: {
+                title: '编辑',
+                body: {
+                  type: 'form',
+                  name: 'sample-edit-form',
+                  api: 'post:https://api.izhongxia.com/api/v1/service/$_id',
+                  controls: columns,
+                },
+              },
+            },
+            {
+              type: 'button',
+              level: 'danger',
+              label: '删除',
+              actionType: 'ajax',
+              confirmText: '您确认要删除?',
+              api: 'delete:https://api.izhongxia.com/api/v1/service/$_id',
+            },
+          ],
+        },
+      ],
     },
   };
   return <AmisRenderer schema={schema} />;

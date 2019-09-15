@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 
 interface IDynamicTable {
   title: string;
+  btnLabel: string;
   columns: any[];
   name: string; // 保存的字段名
   data: any; // 外部数据
@@ -11,7 +12,15 @@ interface IDynamicTable {
   renderModal: Function;
 }
 
-export default ({ title, columns, name, data, setData, renderModal = () => {} }: IDynamicTable) => {
+export default ({
+  title,
+  columns,
+  name,
+  data,
+  setData,
+  btnLabel = '添加',
+  renderModal = () => {},
+}: IDynamicTable) => {
   const [state, setState]: any = useState({
     visible: false,
     currentIndex: -1,
@@ -89,7 +98,7 @@ export default ({ title, columns, name, data, setData, renderModal = () => {} }:
       style={{ marginTop: 10 }}
       extra={
         <Button type="primary" onClick={action.toggle}>
-          添加模块
+          {btnLabel}
         </Button>
       }
     >

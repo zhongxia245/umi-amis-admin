@@ -13,15 +13,23 @@ const CONTROLS_FORM_TYPES = [
   { label: '日期+时间', value: 'datetime' },
   { label: '时间范围', value: 'date-range' },
   { label: '多行文本', value: 'textarea' },
+  { label: 'html', value: 'html' },
   { label: '开关', value: 'switch' },
   { label: '图片', value: 'image' },
   { label: '颜色', value: 'color' },
   { label: '数字文本框', value: 'number' },
   { label: '分割线', value: 'divider' },
-  { label: 'HTML', value: 'html' },
   { label: '评分', value: 'rating' },
   { label: '城市', value: 'city' },
   { label: '文件上传', value: 'file' },
 ];
 
-export { getMenuData, CONTROLS_FORM_TYPES };
+// 值类型，正常只需要几个基础类型
+const VALUE_TYPES = [
+  { label: '依照组件类型', value: '' },
+  { label: '字符串', value: 'string' },
+  { label: '数字', value: 'number' },
+  { label: '布尔类型', value: 'boolean' },
+];
+
+export { getMenuData, CONTROLS_FORM_TYPES, VALUE_TYPES };

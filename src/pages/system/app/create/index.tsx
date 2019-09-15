@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useContext } from 'react';
 import router from 'umi/router';
 import queryString from 'query-string';
 import { set, cloneDeep } from 'lodash';
@@ -16,7 +16,9 @@ import {
   Col,
 } from 'antd';
 import { getAppById, getGroup, getService, createOrUpdateApp } from '@/api';
+import { AppContext } from '@/store';
 import DynamicFieldSet from '@/components/DynamicFieldSet';
+
 import ModalComponentConfig from './components/ModalComponentConfig';
 import ModalApiConfig from './components/ModalApiConfig';
 
@@ -54,6 +56,8 @@ const Create = () => {
   });
   // 表单数据
   const [data, setData]: any = useState({});
+
+  const { refreshMenus }: any = useContext(AppContext);
 
   useEffect(() => {
     const params = queryString.parse(window.location.search);
@@ -173,6 +177,10 @@ const Create = () => {
       }
       await createOrUpdateApp(apiData);
       message.success('创建应用成功~', 1, () => {
+        // 新建的时候，更新导航菜单
+        if (!state._id) {
+          refreshMenus();
+        }
         router.push('/system/app/list');
       });
     },
@@ -323,7 +331,7 @@ const Create = () => {
           <DynamicFieldSet
             label="工具栏按钮"
             btnLabel="添加工具栏按钮 (eg:添加应用)"
-            name="toolbar_controls"
+            name="toolbarControls"
             data={data}
             setData={setData}
             renderItem={jsx.renderFormItem}

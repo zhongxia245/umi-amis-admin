@@ -73,26 +73,36 @@ export default function() {
       headerToolbar: null,
       footerToolbar: ['statistics', 'switch-per-page', 'pagination'],
       filter: filter, // 这里面是一个 form组件
-      columns: columns,
-      itemActions: [
+      columns: [
+        ...columns,
         {
-          type: 'button',
-          label: '查看',
-          actionType: 'link',
-          link: '/system/$group._id/$_id',
-        },
-        {
-          type: 'button',
-          label: '编辑',
-          actionType: 'link',
-          link: '/system/app/create?id=${_id}',
-        },
-        {
-          type: 'button',
-          label: '删除',
-          actionType: 'ajax',
-          confirmText: '您确认要删除?',
-          api: 'delete:https://api.izhongxia.com/api/v1/app/$_id',
+          type: 'operation',
+          label: '操作',
+          width: 150,
+          buttons: [
+            {
+              type: 'button',
+              level: 'primary',
+              label: '查看',
+              actionType: 'link',
+              link: '/$group._id/$_id',
+            },
+            {
+              type: 'button',
+              label: '编辑',
+              level: 'primary',
+              actionType: 'link',
+              link: '/system/app/create?id=${_id}',
+            },
+            {
+              type: 'button',
+              label: '删除',
+              level: 'danger',
+              actionType: 'ajax',
+              confirmText: '您确认要删除?',
+              api: 'delete:https://api.izhongxia.com/api/v1/app/$_id',
+            },
+          ],
         },
       ],
     },

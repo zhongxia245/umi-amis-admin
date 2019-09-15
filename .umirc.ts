@@ -2,8 +2,10 @@ import { IConfig } from 'umi-types';
 
 // ref: https://umijs.org/config/
 const config: IConfig = {
-  // history: 'browser', // 可选 browser、hash 和 memory。
+  history: 'hash', // 可选 browser、hash 和 memory。
   treeShaking: true,
+  base: '/umi-amis-admin/',
+  publicPath: '/umi-amis-admin/',
   proxy: {
     '/api': {
       target: 'http://localhost:7001',

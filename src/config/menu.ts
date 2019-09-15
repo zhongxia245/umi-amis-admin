@@ -88,13 +88,12 @@ const getDynamicMenu = async () => {
   Object.keys(groups).map((key: string) => {
     if (groups[key] && groups[key].length > 0) {
       // 获取应用的名称
-      let group = find(data, item => item.group && item.group._id === key);
-
-      if (group) {
+      let groupData = find(data, item => item.group && item.group._id === key);
+      if (groupData) {
         let menu: any = {
-          name: group.name,
+          name: (groupData.group && groupData.group.name) || '未知分组',
           icon: 'hdd',
-          path: `system/${key}`,
+          path: `${key}`,
           children: [],
         };
         groups[key].map((item: any) => {
