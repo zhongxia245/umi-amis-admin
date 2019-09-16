@@ -19,8 +19,7 @@ export default withRouter(({ match }) => {
     const getConfig = async () => {
       let data: any = (await getAppById(match.params.id)) || {};
       if (data._id) {
-        let config = JSON.parse(data.config);
-        let amisConfig = getAMISConfig(config);
+        let amisConfig = getAMISConfig(data);
         console.log(amisConfig);
         setLoading(false);
         setConfig(amisConfig);

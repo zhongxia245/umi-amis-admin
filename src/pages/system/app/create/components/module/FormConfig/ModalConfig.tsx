@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, Col, Switch } from 'antd';
 import { set, cloneDeep, isEmpty } from 'lodash';
-import { CONTROLS_FORM_TYPES, VALUE_TYPES } from '@/config';
+import { CONTROLS_FORM_TYPES } from '@/config';
 import DynamicFieldSet from '@/components/DynamicFieldSet';
 
 const FormItem = Form.Item;
@@ -125,20 +125,6 @@ export default ({
             onSelect={action.onChange.bind(null, 'type')}
           >
             {CONTROLS_FORM_TYPES.map((item, i) => (
-              <Option key={i} value={item.value}>
-                {`${item.value}-${item.label}`}
-              </Option>
-            ))}
-          </Select>
-        </FormItem>
-        <FormItem label="字段值类型">
-          <Select
-            placeholder="请选择字段的值类型"
-            showSearch={true}
-            value={data.valueType || ''}
-            onSelect={action.onChange.bind(null, 'valueType')}
-          >
-            {VALUE_TYPES.map((item, i) => (
               <Option key={i} value={item.value}>
                 {`${item.value}-${item.label}`}
               </Option>

@@ -2,6 +2,7 @@ import { render as renderSchema } from 'amis';
 import Axios from 'axios';
 import router from 'umi/router';
 import { SchemaNode } from 'amis/lib/types';
+import { notification } from 'antd';
 
 const defaultOptions: object = {
   fetcher: ({
@@ -17,7 +18,6 @@ const defaultOptions: object = {
     // 用来发送 Ajax 请求，建议使用 axios
 
     console.log(`[API]:${method}:${url}`, data);
-
     switch (method) {
       case 'get':
         return Axios.get(url);
@@ -34,6 +34,7 @@ const defaultOptions: object = {
   notify: (type: 'error' | 'success' /**/, msg: string /*提示内容*/) => {
     // 用来提示用户
     console.log(`[notify]:${type}==>${msg}`);
+    notification.error({ message: type, description: msg });
   },
   alert: (content: string /*提示信息*/) => {
     // 另外一种提示，可以直接用系统框

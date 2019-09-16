@@ -92,7 +92,7 @@ export default function() {
               label: '编辑',
               level: 'primary',
               actionType: 'link',
-              link: '/system/app/create?id=${_id}',
+              link: '/system/app/create/$_id',
             },
             {
               type: 'button',
